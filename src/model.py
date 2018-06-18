@@ -29,7 +29,7 @@ decoder_dims = [
 
 class SiameseSegNet(nn.Module):
     def __init__(self, input_channels, output_channels):
-        super(SegNet, self).__init__()
+        super(SiameseSegNet, self).__init__()
 
         self.input_channels = input_channels        # RGB = 3
         self.output_channels = output_channels      # FG + BG = 2
@@ -151,4 +151,7 @@ if __name__ == "__main__":
     iA = torch.rand((1, 3, 512, 512))
     iB = torch.rand((1, 3, 512, 512))
 
-    pmaps = model(iA, iB)
+    pmapA, pmapB = model(iA, iB)
+
+    if DEBUG:
+        print(f"pmapA.size(), pmapB.size() : {pmapA.size()}, {pmapB.size()}")
