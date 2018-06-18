@@ -27,7 +27,7 @@ decoder_dims = [
                 ]
 
 
-class SegNet(nn.Module):
+class SiameseSegNet(nn.Module):
     def __init__(self, input_channels, output_channels):
         super(SegNet, self).__init__()
 
@@ -146,7 +146,7 @@ class SegNet(nn.Module):
 
 
 if __name__ == "__main__":
-    model = SegNet(input_channels=3, output_channels=2)
+    model = SiameseSegNet(input_channels=3, output_channels=2)
 
     iA = torch.rand((1, 3, 512, 512))
     iB = torch.rand((1, 3, 512, 512))
