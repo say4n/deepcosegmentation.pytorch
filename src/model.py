@@ -29,7 +29,7 @@ decoder_dims = [
 
 class SiameseSegNet(nn.Module):
     def __init__(self, input_channels, output_channels):
-        super(SiameseSegNet, self).__init__()
+        super().__init__()
 
         self.input_channels = input_channels        # RGB = 3
         self.output_channels = output_channels      # FG + BG = 2
