@@ -43,7 +43,7 @@ class SiameseSegNet(nn.Module):
                                     padding=1))
             if batch_norm:
                 layers.append(nn.BatchNorm2d(output_channels))
-            layers.append(nn.ReLU)
+            layers.append(nn.ReLU())
 
             return layers
 
@@ -56,7 +56,7 @@ class SiameseSegNet(nn.Module):
                                              padding=1))
             if batch_norm:
                 layers.append(nn.BatchNorm2d(output_channels))
-            layers.append(nn.ReLU)
+            layers.append(nn.ReLU())
 
             return layers
 
