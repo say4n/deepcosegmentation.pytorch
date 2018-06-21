@@ -75,7 +75,7 @@ class PascalVOCDeepCoSegmentationDataloader(Dataset):
         for image_name in lines:
             try:
                 label = self.class_label_to_class_index(self.image_name_to_class_label(image_name))
-                self.images.append(image_name, label)
+                self.images.append((image_name, label))
             except KeyError:
                 pass
 
