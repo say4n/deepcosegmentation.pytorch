@@ -115,9 +115,9 @@ if __name__ == "__main__":
     image_dir = os.path.join(root_dir, "JPEGImages")
     mask_dir = os.path.join(root_dir, "SegmentationClass")
 
-    dataloader = PascalVOCDeepCoSegmentationDataloader(segmentation_dataset=segmentation_dataset,
-                                                       classlabel_dataset=classlabel_dataset,
-                                                       image_dir=image_dir,
-                                                       mask_dir=mask_dir)
+    dataset = PascalVOCDeepCoSegmentationDataloader(segmentation_dataset=segmentation_dataset,
+                                                    classlabel_dataset=classlabel_dataset,
+                                                    image_dir=image_dir,
+                                                    mask_dir=mask_dir)
 
-    print(dataloader[0])
+    print(dataset[0])
