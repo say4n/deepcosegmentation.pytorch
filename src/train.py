@@ -23,7 +23,7 @@ parser.add_argument('--img_dir', required=True)
 parser.add_argument('--mask_dir', required=True)
 parser.add_argument('--checkpoint_save_dir', default=False)
 parser.add_argument('--checkpoint_load_dir', default=False)
-parser.add_argument('--gpu', type=int, default=None)
+parser.add_argument('--gpu', default=None)
 
 args = parser.parse_args()
 
@@ -63,9 +63,22 @@ if __name__ == "__main__":
                                                     image_dir=image_dir,
                                                     mask_dir=mask_dir)
 
+    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+
+
+
     model = SiameseSegNet(input_channels=INPUT_CHANNELS, output_channels=OUTPUT_CHANNELS)
     loss = nn.BCELoss()
     optimiser = torch.optim.Adam(lr=LEARNING_RATE, betas=BETAS)
+
+    if CUDA:
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+
+        model.cuda()
+        loss.cuda()
+
+    if LOAD_CHECKPOOINT:
+        model.load_state_dict(torch.load(LOAD_CHECKPOOINT))
 
 
     train()
