@@ -87,6 +87,7 @@ class SiameseSegNet(nn.Module):
 
 
     def compute_correlation(self, featureA, featureB):
+        # TODO: Fix this!
         # https://github.com/pytorch/pytorch/issues/4073
         B = featureA.shape[0]
         W = featureA.shape[-1]
