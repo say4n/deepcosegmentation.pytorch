@@ -1,13 +1,13 @@
 """
 Train SegNet based Siamese network
 
-usage: train.py --dataset_root /Users/Sayan/Desktop/Research/IIT\ B/Vision/datasets/VOCdevkit/VOC2007/ \
+usage: train.py --dataset_root /home/SharedData/intern_sayan/PascalVOC2012/data/VOCdevkit/VOC2012/ \
                 --segmentation_dataset_path ImageSets/Segmentation/trainval.txt \
                 --classlabel_dataset_path ImageSets/Main \
                 --img_dir JPEGImages \
                 --mask_dir SegmentationClass \
-                --checkpoint_save_dir .\
-                --gpu 0
+                --checkpoint_save_dir /home/SharedData/intern_sayan/PascalVOC2012/ \
+                --gpu 1
 """
 
 import argparse
@@ -48,7 +48,7 @@ LEARNING_RATE = 0.0004
 BETAS = (0.9, 0.999)
 
 ## Dataset
-BATCH_SIZE = 2 * 1 # two images at a time for Siamese net
+BATCH_SIZE = 2 * 16 # two images at a time for Siamese net
 INPUT_CHANNELS = 3 # RGB
 OUTPUT_CHANNELS = 2 # BG + FG channel
 
@@ -128,7 +128,7 @@ def train():
             prev_loss = loss_f
 
             if CHECKPOINT:
-                torch.save(model.state_dict(), os.path.join(CHECKPOINT, "model_best.pth"))
+                torch.save(model.state_dict(), os.path.join(CHECKPOINT, "coseg_model_best.pth"))
 
         print("Epoch #{}\tLoss: {:.8f}\t Time: {:2f}s".format(epoch+1, loss_f, delta))
 
