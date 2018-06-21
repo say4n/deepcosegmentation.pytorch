@@ -43,6 +43,7 @@ class SiameseSegNet(nn.Module):
                                     padding=1))
             if batch_norm:
                 layers.append(nn.BatchNorm2d(output_channels))
+            layers.append(nn.ReLU)
 
             return layers
 
@@ -55,9 +56,10 @@ class SiameseSegNet(nn.Module):
                                              padding=1))
             if batch_norm:
                 layers.append(nn.BatchNorm2d(output_channels))
+            layers.append(nn.ReLU)
 
             return layers
-        
+
 
         self.encoder = models.vgg16(pretrained=True).features
         self.encoder_l2 = nn.Sequential(*encoder_blocks(512, 1024),
@@ -80,9 +82,10 @@ class SiameseSegNet(nn.Module):
                                      *decoder_blocks(128, 128),
                                      nn.Upsample(scale_factor=2, mode='nearest'),
                                      *decoder_blocks(128, 64),
-                                     *decoder_blocks(64, self.output_channels))
+                                     *decoder_blocks(64, self.output_channels),
+                                     nn.Softmax())
 
-    
+
     def compute_correlation(self, featureA, featureB):
         # https://github.com/pytorch/pytorch/issues/4073
         B = featureA.shape[0]
@@ -105,9 +108,9 @@ class SiameseSegNet(nn.Module):
                             m, n, k = i + dm, j + dn, dn * D + dm
 
                             if 0 <= m < H and 0 <= n < W:
-                                cAB[b, i, j] += fA[b, i, j] * fB[b, m, n] 
-        
-        return cAB.transpose_(3, 2).transpose_(2, 1)        # B, D^2, H, W 
+                                cAB[b, i, j] += fA[b, i, j] * fB[b, m, n]
+
+        return cAB.transpose_(3, 2).transpose_(2, 1)        # B, D^2, H, W
 
 
     def forward(self, imageA, imageB):
