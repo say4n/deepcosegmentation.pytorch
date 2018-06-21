@@ -70,8 +70,14 @@ class PascalVOCDeepCoSegmentationDataloader(Dataset):
         with open(self.segmentation_dataset_path) as in_file:
             lines = in_file.read().split("\n")[:-1]
 
-        self.images = [(image_name,
-                        self.class_label_to_class_index(self.image_name_to_class_label(image_name))) for image_name in lines]
+        self.images = []
+
+        for image_name in lines:
+            try:
+                label = self.class_label_to_class_index(self.image_name_to_class_label(image_name))
+                self.images.append(image_name, label)
+            except KeyError:
+                pass
 
     def load_image(self, path=None):
         raw_image = Image.open(path)
