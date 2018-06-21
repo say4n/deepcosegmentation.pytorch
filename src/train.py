@@ -7,4 +7,4 @@ from model import SiameseSegNet
 import os
 import time
 import torch
-from torch.utils.data import DataLoader
+from dataset import PascalVOCDeepCoSegmentationDataloader
