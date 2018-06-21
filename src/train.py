@@ -11,6 +11,7 @@ usage: train.py --dataset_root /Users/Sayan/Desktop/Research/IIT\ B/Vision/datas
 """
 
 import argparse
+from dataset import PascalVOCDeepCoSegmentationDataloader
 from model import SiameseSegNet
 import os
 import pdb
@@ -19,7 +20,7 @@ import time
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from dataset import PascalVOCDeepCoSegmentationDataloader
+from tqdm import tqdm
 
 #-----------#
 # Arguments #
@@ -47,7 +48,7 @@ LEARNING_RATE = 0.0004
 BETAS = (0.9, 0.999)
 
 ## Dataset
-BATCH_SIZE = 2 * 32 # two images at a time for Siamese net
+BATCH_SIZE = 2 * 1 # two images at a time for Siamese net
 INPUT_CHANNELS = 3 # RGB
 OUTPUT_CHANNELS = 2 # BG + FG channel
 
@@ -69,7 +70,7 @@ def train():
         loss_f, lossA_f, lossB_f = 0, 0, 0
         t_start = time.time()
 
-        for batch_idx, batch in enumerate(dataloader):
+        for batch_idx, batch in tqdm(enumerate(dataloader)):
             images = batch["image"]
             labels = batch["label"]
             masks  = batch["mask"]
@@ -88,7 +89,7 @@ def train():
 
             imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
             labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
-            masksA, masksB = torch.stack(masksA), torch.stack(masksB)
+            masksA, masksB = torch.stack(masksA).long(), torch.stack(masksB).long()
 
             # pdb.set_trace()
 
@@ -98,8 +99,8 @@ def train():
 
             optimizer.zero_grad()
 
-            lossA = loss(pmapA, torch.autograd.Variable(masksA))
-            lossB = loss(pmapB, torch.autograd.Variable(masksB))
+            lossA = criterion(pmapA, torch.autograd.Variable(masksA))
+            lossB = criterion(pmapB, torch.autograd.Variable(masksB))
 
             loss = lossA + lossB
 
@@ -149,6 +150,7 @@ if __name__ == "__main__":
 
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
+    OUTPUT_CHANNELS = dataset.get_number_of_classes()
 
     #-------------#
     #    Model    #
@@ -156,7 +158,7 @@ if __name__ == "__main__":
 
     model = SiameseSegNet(input_channels=INPUT_CHANNELS, output_channels=OUTPUT_CHANNELS)
 
-    loss = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, betas=BETAS)
 
     FloatTensor = torch.FloatTensor
@@ -166,7 +168,7 @@ if __name__ == "__main__":
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
         model.cuda()
-        loss.cuda()
+        criterion.cuda()
 
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor

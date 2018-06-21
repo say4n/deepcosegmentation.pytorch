@@ -19,7 +19,7 @@ class PascalVOCDeepCoSegmentationDataloader(Dataset):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
 
-        self.image_dims = (224, 224)
+        self.image_dims = (512, 512)
 
         self._load_image_classes()
 
@@ -62,6 +62,9 @@ class PascalVOCDeepCoSegmentationDataloader(Dataset):
 
     def image_name_to_class_label(self, image):
         return self.image_class_lookup[str(image)]
+
+    def get_number_of_classes(self):
+        return len(self.classes) + 1 # 1 extra for background
 
     def _load_segmentation_dataset(self):
         with open(self.segmentation_dataset_path) as in_file:
