@@ -9,7 +9,7 @@ import pdb
 from PIL import Image
 from torch.utils.data import Dataset
 
-DEBUG = True
+DEBUG = False
 
 
 class PascalVOCDeepCoSegmentationDataloader(Dataset):
