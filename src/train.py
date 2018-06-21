@@ -1,14 +1,24 @@
 """
 Train SegNet based Siamese network
+
+usage: train.py --dataset_root /Users/Sayan/Desktop/Research/IIT\ B/Vision/datasets/VOCdevkit/VOC2007/ \
+                --segmentation_dataset_path ImageSets/Segmentation/trainval.txt \
+                --classlabel_dataset_path ImageSets/Main \
+                --img_dir JPEGImages \
+                --mask_dir SegmentationClass \
+                --checkpoint_save_dir .\
+                --gpu 0
 """
 
 import argparse
 from model import SiameseSegNet
 import os
+import pdb
 from tensorboardX import SummaryWriter
 import time
 import torch
-import torch.nn
+import torch.nn as nn
+from torch.utils.data import DataLoader
 from dataset import PascalVOCDeepCoSegmentationDataloader
 
 #-----------#
@@ -64,20 +74,32 @@ def train():
             labels = batch["label"]
             masks  = batch["mask"]
 
-            pairwise_images = FloatTensor([(images[2*idx], images[2*idx+1]) for idx in range(BATCH_SIZE//2)])
-            pairwise_labels = LongTensor([(labels[2*idx], labels[2*idx+1]) for idx in range(BATCH_SIZE//2)])
-            pairwise_masks  = FloatTensor([(masks[2*idx], masks[2*idx+1]) for idx in range(BATCH_SIZE//2)])
+            # pdb.set_trace()
+
+            pairwise_images = [(images[2*idx], images[2*idx+1]) for idx in range(BATCH_SIZE//2)]
+            pairwise_labels = [(labels[2*idx], labels[2*idx+1]) for idx in range(BATCH_SIZE//2)]
+            pairwise_masks  = [(masks[2*idx], masks[2*idx+1]) for idx in range(BATCH_SIZE//2)]
+
+            # pdb.set_trace()
 
             imagesA, imagesB = zip(*pairwise_images)
             labelsA, labelsB = zip(*pairwise_labels)
             masksA, masksB = zip(*pairwise_masks)
 
-            pmapA, pmapB = model(imagesA, imagesB)
+            imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
+            labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
+            masksA, masksB = torch.stack(masksA), torch.stack(masksB)
+
+            # pdb.set_trace()
+
+            pmapA, pmapB = model(torch.autograd.Variable(imagesA), torch.autograd.Variable(imagesB))
+
+            # pdb.set_trace()
 
             optimizer.zero_grad()
 
-            lossA = loss(pmapA, masksA)
-            lossB = loss(pmapB, masksB)
+            lossA = loss(pmapA, torch.autograd.Variable(masksA))
+            lossB = loss(pmapB, torch.autograd.Variable(masksB))
 
             loss = lossA + lossB
 
@@ -135,7 +157,7 @@ if __name__ == "__main__":
     model = SiameseSegNet(input_channels=INPUT_CHANNELS, output_channels=OUTPUT_CHANNELS)
 
     loss = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(lr=LEARNING_RATE, betas=BETAS)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, betas=BETAS)
 
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
