@@ -55,7 +55,7 @@ OUTPUT_CHANNELS = 2 # BG + FG channel
 ## Training
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
-LOAD_CHECKPOOINT = args.checkpoint_load_dir
+LOAD_CHECKPOINT = args.checkpoint_load_dir
 NUM_EPOCHS = 1
 
 
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
 
-    if CUDA:
+    if CUDA is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
         model.cuda()
@@ -173,7 +173,7 @@ if __name__ == "__main__":
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor
 
-    if LOAD_CHECKPOOINT:
+    if LOAD_CHECKPOINT:
         model.load_state_dict(torch.load(LOAD_CHECKPOINT))
 
 
