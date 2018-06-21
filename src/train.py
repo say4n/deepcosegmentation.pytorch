@@ -5,6 +5,7 @@ Train SegNet based Siamese network
 import argparse
 from model import SiameseSegNet
 import os
+from tensorboardX import SummaryWriter
 import time
 import torch
 import torch.nn
@@ -47,6 +48,7 @@ LOAD_CHECKPOOINT = args.checkpoint_load_dir
 NUM_EPOCHS = 1
 
 
+
 def train():
     is_better = True
     prev_loss = float('inf')
@@ -54,7 +56,7 @@ def train():
     model.train()
 
     for epoch in range(NUM_EPOCHS):
-        loss_f = 0
+        loss_f, lossA_f, lossB_f = 0, 0, 0
         t_start = time.time()
 
         for batch_idx, batch in enumerate(dataloader):
@@ -86,10 +88,18 @@ def train():
 
             # Add losses for epoch
             loss_f += loss.float()
+            lossA_f = lossA.float()
+            lossB_f = lossB.float()
 
         delta = time.time() - t_start
-        is_better = loss_f < prev_loss
 
+
+        writer.add_scalar("loss/lossA", lossA_f, epoch)
+        writer.add_scalar("loss/lossB", lossB_f, epoch)
+        writer.add_scalar("loss/loss", loss_f, epoch)
+
+
+        is_better = loss_f < prev_loss
 
         if is_better:
             prev_loss = loss_f
@@ -118,6 +128,9 @@ if __name__ == "__main__":
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
 
+    #-------------#
+    #    Model    #
+    #-------------#
 
     model = SiameseSegNet(input_channels=INPUT_CHANNELS, output_channels=OUTPUT_CHANNELS)
 
@@ -140,4 +153,13 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load(LOAD_CHECKPOINT))
 
 
+    #-------------#
+    #    Train    #
+    #-------------#
+
+    writer = SummaryWriter()
+
     train()
+
+    writer.export_scalars_to_json("./all_scalars.json")
+    writer.close()
