@@ -52,7 +52,7 @@ LEARNING_RATE = 0.0004
 BETAS = (0.9, 0.999)
 
 ## Dataset
-BATCH_SIZE = 2 * 16 # two images at a time for Siamese net
+BATCH_SIZE = 2 * 1 # two images at a time for Siamese net
 INPUT_CHANNELS = 3 # RGB
 OUTPUT_CHANNELS = 2 # BG + FG channel
 
@@ -60,7 +60,7 @@ OUTPUT_CHANNELS = 2 # BG + FG channel
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
-NUM_EPOCHS = 1
+NUM_EPOCHS = 20
 
 
 
