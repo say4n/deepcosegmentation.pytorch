@@ -95,10 +95,10 @@ class SiameseSegNet(nn.Module):
         D = 2*max(W, H)
         patch_size = 3
 
-        fA = featureA.transpose(1, 2).transpose(2, 3)       # B, H, W, C
-        fB = featureB.transpose(1, 2).transpose(2, 3)       # B, H, W, C
+        fA = featureA.transpose(1, 2).transpose(2, 3).detach().cpu()          # B, H, W, C
+        fB = featureB.transpose(1, 2).transpose(2, 3).detach().cpu()          # B, H, W, C
 
-        cAB = torch.zeros((B, W, H, D**2))                  # B, H, W, D^2
+        cAB = torch.zeros((B, W, H, D**2))                              # B, H, W, D^2
 
         for b in range(B):
             for i in range(H):
@@ -110,7 +110,7 @@ class SiameseSegNet(nn.Module):
                             if 0 <= m < H and 0 <= n < W:
                                 cAB[b, i, j] += fA[b, i, j] * fB[b, m, n]
 
-        return cAB.transpose_(3, 2).transpose_(2, 1)        # B, D^2, H, W
+        return cAB.transpose_(3, 2).transpose_(2, 1).cuda()             # B, D^2, H, W
 
 
     def forward(self, imageA, imageB):
