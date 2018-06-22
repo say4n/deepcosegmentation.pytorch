@@ -2,6 +2,7 @@
 Pytorch implementation of Deep Co-segmentation
 """
 
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -28,7 +29,7 @@ decoder_dims = [
 
 
 class SiameseSegNet(nn.Module):
-    def __init__(self, input_channels, output_channels):
+    def __init__(self, input_channels, output_channels, gpu=None):
         super().__init__()
 
         self.input_channels = input_channels        # RGB = 3
@@ -62,6 +63,11 @@ class SiameseSegNet(nn.Module):
 
 
         self.encoder = models.vgg16(pretrained=True).features
+
+        if gpu is not None:
+            os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+            self.encoder = self.encoder.cuda()
+
         self.encoder_l2 = nn.Sequential(*encoder_blocks(512, 1024),
                                         *encoder_blocks(1024, 1024))
 
