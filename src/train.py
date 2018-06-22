@@ -45,7 +45,7 @@ args = parser.parse_args()
 
 ## Debug
 
-DEBUG = True
+DEBUG = False
 
 ## Optimiser
 LEARNING_RATE = 0.0004
@@ -174,8 +174,8 @@ if __name__ == "__main__":
     if CUDA is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
-        model.cuda()
-        criterion.cuda()
+        model = model.cuda()
+        criterion = criterion.cuda()
 
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor
