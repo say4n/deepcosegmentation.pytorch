@@ -97,8 +97,8 @@ def train():
 
             # pdb.set_trace()
 
-            imagesA_v = torch.autograd.Variable(imagesA)
-            imagesB_v = torch.autograd.Variable(imagesB)
+            imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
+            imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
 
             pmapA, pmapB = model(imagesA_v, imagesB_v)
 
@@ -106,8 +106,11 @@ def train():
 
             optimizer.zero_grad()
 
-            lossA = criterion(pmapA, torch.autograd.Variable(masksA))
-            lossB = criterion(pmapB, torch.autograd.Variable(masksB))
+            masksA_v = torch.autograd.Variable(LongTensor(masksA))
+            masksB_v = torch.autograd.Variable(LongTensor(masksB))
+
+            lossA = criterion(pmapA, masksA_v)
+            lossB = criterion(pmapB, masksB_v)
 
             loss = lossA + lossB
 
