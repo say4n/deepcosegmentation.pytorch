@@ -117,8 +117,15 @@ class SiameseSegNet(nn.Module):
         """
         Forward pass images through the network
         """
-        featureA = self.encoder_l2(self.encoder(imageA))
-        featureB = self.encoder_l2(self.encoder(imageB))
+        vggA_feat = self.encoder(imageA)
+        vggB_feat = self.encoder(imageB)
+
+        if DEBUG:
+            print(f"vggA_feat.size(): {vggA_feat.size()}")
+            print(f"vggB_feat.size(): {vggB_feat.size()}")
+
+        featureA = self.encoder_l2(vggA_feat)
+        featureB = self.encoder_l2(vggB_feat)
 
         if DEBUG:
             print(f"featureA.size(): {featureA.size()}")
