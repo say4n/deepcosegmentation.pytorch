@@ -75,9 +75,9 @@ def train():
         t_start = time.time()
 
         for batch_idx, batch in tqdm(enumerate(dataloader)):
-            images = batch["image"]
-            labels = batch["label"]
-            masks  = batch["mask"]
+            images = batch["image"].type(FloatTensor)
+            labels = batch["label"].type(LongTensor)
+            masks  = batch["mask"].type(FloatTensor)
 
             # pdb.set_trace()
 
