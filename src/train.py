@@ -156,7 +156,8 @@ if __name__ == "__main__":
     dataset = PascalVOCDeepCoSegmentationDataloader(segmentation_dataset=segmentation_dataset,
                                                     classlabel_dataset=classlabel_dataset,
                                                     image_dir=image_dir,
-                                                    mask_dir=mask_dir)
+                                                    mask_dir=mask_dir,
+                                                    drop_last=True)
 
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
