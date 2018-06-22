@@ -62,9 +62,10 @@ class SiameseSegNet(nn.Module):
             return layers
 
 
-        self.encoder = models.vgg16(pretrained=True).features
+        self.encoder = models.vgg16_bn(pretrained=True).features
 
         if gpu is not None:
+            print("Transferring VGG to GPU")
             os.environ["CUDA_VISIBLE_DEVICES"] = gpu
             self.encoder = self.encoder.cuda()
 
