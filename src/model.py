@@ -34,6 +34,8 @@ class SiameseSegNet(nn.Module):
         self.input_channels = input_channels        # RGB = 3
         self.output_channels = output_channels      # FG + BG = 2
 
+        self.gpu = gpu
+
 
         def encoder_blocks(input_channels, output_channels, batch_norm=True):
             layers = []
@@ -95,10 +97,13 @@ class SiameseSegNet(nn.Module):
         D = 2*max(W, H)
         patch_size = 3
 
-        fA = featureA.transpose(1, 2).transpose(2, 3).detach().cpu()          # B, H, W, C
-        fB = featureB.transpose(1, 2).transpose(2, 3).detach().cpu()          # B, H, W, C
+        if DEBUG:
+            print(f"fA, fB := [ B: {B}, W: {W}, H: {H} ]")
 
-        cAB = torch.zeros((B, W, H, D**2))                              # B, H, W, D^2
+        fA = featureA.transpose(1, 2).transpose(2, 3).detach().cpu()            # B, H, W, C
+        fB = featureB.transpose(1, 2).transpose(2, 3).detach().cpu()            # B, H, W, C
+
+        cAB = torch.zeros((B, W, H, D**2))                                      # B, H, W, D^2
 
         for b in range(B):
             for i in range(H):
@@ -110,7 +115,15 @@ class SiameseSegNet(nn.Module):
                             if 0 <= m < H and 0 <= n < W:
                                 cAB[b, i, j] += fA[b, i, j] * fB[b, m, n]
 
-        return cAB.transpose_(3, 2).transpose_(2, 1).cuda()             # B, D^2, H, W
+        if self.gpu:
+            return cAB.transpose_(3, 2).transpose_(2, 1).cuda()                 # B, D^2, H, W
+        else:
+            return cAB.transpose_(3, 2).transpose_(2, 1)                        # B, D^2, H, W
+
+
+    def concat_correlation(self, featureA, featureB):
+        # hack (?)
+        return featureB
 
 
     def forward(self, imageA, imageB):
@@ -131,8 +144,8 @@ class SiameseSegNet(nn.Module):
             print(f"featureA.size(): {featureA.size()}")
             print(f"featureB.size(): {featureB.size()}")
 
-        correlationAB = self.compute_correlation(featureA, featureB)
-        correlationBA = self.compute_correlation(featureB, featureA)
+        correlationAB = self.concat_correlation(featureA, featureB)
+        correlationBA = self.concat_correlation(featureB, featureA)
 
         if DEBUG:
             print(f"correlationAB.size(): {correlationAB.size()}")
