@@ -163,7 +163,9 @@ if __name__ == "__main__":
     #    Model    #
     #-------------#
 
-    model = SiameseSegNet(input_channels=INPUT_CHANNELS, output_channels=OUTPUT_CHANNELS)
+    model = SiameseSegNet(input_channels=INPUT_CHANNELS,
+                          output_channels=OUTPUT_CHANNELS,
+                          gpu=CUDA)
 
     if DEBUG:
         print(model)
