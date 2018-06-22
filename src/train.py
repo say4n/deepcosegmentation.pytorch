@@ -43,6 +43,10 @@ args = parser.parse_args()
 # Constants #
 #-----------#
 
+## Debug
+
+DEBUG = True
+
 ## Optimiser
 LEARNING_RATE = 0.0004
 BETAS = (0.9, 0.999)
@@ -157,6 +161,9 @@ if __name__ == "__main__":
     #-------------#
 
     model = SiameseSegNet(input_channels=INPUT_CHANNELS, output_channels=OUTPUT_CHANNELS)
+
+    if DEBUG:
+        print(model)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, betas=BETAS)
