@@ -97,7 +97,10 @@ def train():
 
             # pdb.set_trace()
 
-            pmapA, pmapB = model(torch.autograd.Variable(imagesA), torch.autograd.Variable(imagesB))
+            imagesA_v = torch.autograd.Variable(imagesA)
+            imagesB_v = torch.autograd.Variable(imagesB)
+
+            pmapA, pmapB = model(imagesA_v, imagesB_v)
 
             # pdb.set_trace()
 
