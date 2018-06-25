@@ -48,7 +48,7 @@ args = parser.parse_args()
 DEBUG = False
 
 ## Optimiser
-LEARNING_RATE = 0.0004
+LEARNING_RATE = 0.004
 BETAS = (0.9, 0.999)
 
 ## Dataset
