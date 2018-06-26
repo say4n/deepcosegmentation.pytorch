@@ -48,7 +48,7 @@ args = parser.parse_args()
 DEBUG = False
 
 ## Optimiser
-LEARNING_RATE = 0.004
+LEARNING_RATE = 0.0001
 BETAS = (0.9, 0.999)
 
 ## Dataset
@@ -60,7 +60,7 @@ OUTPUT_CHANNELS = 2 # BG + FG channel
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
-NUM_EPOCHS = 100
+NUM_EPOCHS = 1000
 
 
 
