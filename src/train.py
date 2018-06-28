@@ -105,6 +105,8 @@ def train():
             masksA_v = torch.autograd.Variable(LongTensor(masksA))
             masksB_v = torch.autograd.Variable(LongTensor(masksB))
 
+            # pdb.set_trace()
+
             lossA = criterion(pmapA, masksA_v)
             lossB = criterion(pmapB, masksB_v)
 

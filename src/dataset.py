@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.datasets import ImageFolder, DatasetFolder
-from torchvision.transforms import Compose, Resize, ToTensor
+from torchvision.transforms import ToTensor
 
 
 class iCosegDataset(Dataset):
@@ -14,24 +14,30 @@ class iCosegDataset(Dataset):
         self.mask_dir = mask_dir
 
         self.img_size = (512, 512)
+        self.in_channels = 3
 
         self.image_data = DatasetFolder(root=image_dir,
                                         loader=self.image_loader,
                                         extensions=["jpg"],
-                                        transform=Compose([Resize(self.img_size, interpolation=0), ToTensor()]))
+                                        transform=ToTensor())
 
         self.mask_data = DatasetFolder(root=mask_dir,
                                        loader=self.mask_loader,
-                                       extensions=["png"],
-                                       transform=Compose([Resize(self.img_size, interpolation=0), ToTensor()]))
+                                       extensions=["png"])
 
         self.length = len(self.image_data)
 
     def image_loader(self, path):
-        return Image.open(path)
+        img = Image.open(path).resize(self.img_size)
+        img = np.array(img).astype(np.float32)/255.0
+
+        return img
 
     def mask_loader(self, path):
-        return Image.open(path)
+        img = Image.open(path).resize(self.img_size)
+        img = np.array(img).astype(np.uint8)
+
+        return img
 
     def __len__(self):
         return self.length
