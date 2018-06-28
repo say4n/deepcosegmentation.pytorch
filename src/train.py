@@ -1,17 +1,15 @@
 """
 Train SegNet based Siamese network
 
-usage: train.py --dataset_root /home/SharedData/intern_sayan/PascalVOC2012/data/VOCdevkit/VOC2012/ \
-                --segmentation_dataset_path ImageSets/Segmentation/trainval.txt \
-                --classlabel_dataset_path ImageSets/Main \
-                --img_dir JPEGImages \
-                --mask_dir SegmentationClass \
-                --checkpoint_save_dir /home/SharedData/intern_sayan/PascalVOC2012/ \
+usage: train.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
+                --img_dir images \
+                --mask_dir ground_truth \
+                --checkpoint_save_dir /home/SharedData/intern_sayan/iCoseg/ \
                 --gpu 1
 """
 
 import argparse
-from dataset import PascalVOCDeepCoSegmentationDataloader
+from dataset import iCosegDataset
 from model import SiameseSegNet
 import os
 import pdb
@@ -29,8 +27,6 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='Train a SegNet model')
 
 parser.add_argument('--dataset_root', required=True)
-parser.add_argument('--segmentation_dataset_path', required=True)
-parser.add_argument('--classlabel_dataset_path', required=True)
 parser.add_argument('--img_dir', required=True)
 parser.add_argument('--mask_dir', required=True)
 parser.add_argument('--checkpoint_save_dir', default=False)
@@ -143,24 +139,16 @@ def train():
         print("Epoch #{}\tLoss: {:.8f}\t Time: {:2f}s".format(epoch+1, loss_f, delta))
 
 
-
-
 if __name__ == "__main__":
     root_dir = args.dataset_root
 
-    segmentation_dataset = os.path.join(root_dir, args.segmentation_dataset_path)
-    classlabel_dataset = os.path.join(root_dir, args.classlabel_dataset_path)
     image_dir = os.path.join(root_dir, args.img_dir)
     mask_dir = os.path.join(root_dir, args.mask_dir)
 
-    dataset = PascalVOCDeepCoSegmentationDataloader(segmentation_dataset=segmentation_dataset,
-                                                    classlabel_dataset=classlabel_dataset,
-                                                    image_dir=image_dir,
-                                                    mask_dir=mask_dir)
+    iCoseg_dataset = iCosegDataset(image_dir=image_dir,
+                                   mask_dir=mask_dir)
 
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, drop_last=True)
-
-    OUTPUT_CHANNELS = dataset.get_number_of_classes()
 
     #-------------#
     #    Model    #
