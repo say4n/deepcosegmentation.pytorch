@@ -1,10 +1,11 @@
 """iCoseg Dataset"""
 
 
+import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.datasets import ImageFolder, DatasetFolder
-from torchvision.transforms import Compose, Resize
+from torchvision.transforms import Compose, Resize, ToTensor
 
 
 class iCosegDataset(Dataset):
@@ -17,12 +18,12 @@ class iCosegDataset(Dataset):
         self.image_data = DatasetFolder(root=image_dir,
                                         loader=self.image_loader,
                                         extensions=["jpg"],
-                                        transform=Compose([Resize(self.img_size, interpolation=0)]))
+                                        transform=Compose([Resize(self.img_size, interpolation=0), ToTensor()]))
 
         self.mask_data = DatasetFolder(root=mask_dir,
                                        loader=self.mask_loader,
                                        extensions=["png"],
-                                       transform=Compose([Resize(self.img_size, interpolation=0)]))
+                                       transform=Compose([Resize(self.img_size, interpolation=0), ToTensor()]))
 
         self.length = len(self.image_data)
 
@@ -51,3 +52,9 @@ class iCosegDataset(Dataset):
         }
 
         return data
+
+if __name__ == "__main__":
+    dataset = iCosegDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/iCoseg/images",
+                            mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/iCoseg/ground_truth")
+
+    print(dataset[0])
