@@ -44,11 +44,11 @@ args = parser.parse_args()
 DEBUG = False
 
 ## Optimiser
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 BETAS = (0.9, 0.999)
 
 ## Dataset
-BATCH_SIZE = 2 * 1 # two images at a time for Siamese net
+BATCH_SIZE = 2 * 2 # two images at a time for Siamese net
 INPUT_CHANNELS = 3 # RGB
 OUTPUT_CHANNELS = 2 # BG + FG channel
 
