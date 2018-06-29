@@ -87,8 +87,11 @@ def train():
             labelsA, labelsB = zip(*pairwise_labels)
             masksA, masksB = zip(*pairwise_masks)
 
+            # pdb.set_trace()
             imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
             labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
+            mask_dim = imagesA[0].size()[1:]
+            eq_labels = torch.stack([torch.ones(mask_dim) if eq == 1 else torch.zeros(mask_dim) for eq in labelsA == labelsB]).long()
             masksA, masksB = torch.stack(masksA).long(), torch.stack(masksB).long()
 
             # pdb.set_trace()
