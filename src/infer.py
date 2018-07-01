@@ -101,8 +101,8 @@ def infer():
             res_images.append(imagesA[idx])
             res_images.append(imagesB[idx])
 
-            res_masks.append(pmapA[idx].reshape(BATCH_SIZE, 1, 512, 512))
-            res_masks.append(pmapB[idx].reshape(BATCH_SIZE, 1, 512, 512))
+            res_masks.append(pmapA[idx].reshape(BATCH_SIZE//2, 2, 512, 512))
+            res_masks.append(pmapB[idx].reshape(BATCH_SIZE//2, 2, 512, 512))
 
         images_T = torch.stack(res_images)
         masks_T = torch.stack(res_masks)
