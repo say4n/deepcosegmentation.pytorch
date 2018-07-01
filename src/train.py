@@ -100,9 +100,9 @@ def train():
 
             for idx in range(BATCH_SIZE//2):
                 if labelsA[idx] == labelsB[idx]:
-                    eq_labels.append(LongTensor(torch.ones(mask_dim)))
+                    eq_labels.append(LongTensor(torch.ones(mask_dim).long()))
                 else:
-                    eq_labels.append(LongTensor(torch.zeros(mask_dim)))
+                    eq_labels.append(LongTensor(torch.zeros(mask_dim).long()))
 
             eq_labels = torch.stack(eq_labels)
 
