@@ -57,6 +57,8 @@ LOAD_CHECKPOINT = args.checkpoint_load_dir
 
 ## Output Dir
 OUTPUT_DIR = args.output_dir
+
+os.system(f"rm -r {OUTPUT_DIR}")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
