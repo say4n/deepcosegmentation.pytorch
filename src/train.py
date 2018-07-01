@@ -91,12 +91,20 @@ def train():
 
             imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
             labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
-            mask_dim = imagesA[0].size()[1:]
             masksA, masksB = torch.stack(masksA).long(), torch.stack(masksB).long()
 
             # pdb.set_trace()
 
-            eq_labels = LongTensor(torch.stack([torch.ones(mask_dim).long() if eq == 1 else torch.zeros(mask_dim).long() for eq in labelsA == labelsB]))
+            mask_dim = imagesA[0].size()[1:]
+            eq_labels = []
+
+            for idx in range(BATCH_SIZE//2):
+                if labelsA[idx] == labelsB[idx]:
+                    eq_labels.append(LongTensor(torch.ones(mask_dim)))
+                else:
+                    eq_labels.append(LongTensor(torch.zeros(mask_dim)))
+
+            eq_labels = torch.stack(eq_labels)
 
             masksA = masksA * eq_labels
             masksB = masksB * eq_labels
