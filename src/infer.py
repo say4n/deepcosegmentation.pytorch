@@ -90,6 +90,22 @@ def infer():
 
         # pdb.set_trace()
 
+        mask_dim = imagesA[0].size()[1:]
+        eq_labels = []
+
+        for idx in range(BATCH_SIZE//2):
+            if torch.equal(labelsA[idx], labelsB[idx]):
+                eq_labels.append(torch.ones(mask_dim).type(LongTensor))
+            else:
+                eq_labels.append(torch.zeros(mask_dim).type(LongTensor))
+
+        eq_labels = torch.stack(eq_labels)
+
+        masksA = masksA * eq_labels
+        masksB = masksB * eq_labels
+
+        # pdb.set_trace()
+
         imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
         imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
 
