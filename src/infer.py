@@ -93,9 +93,20 @@ def infer():
 
         pmapA, pmapB = model(imagesA_v, imagesB_v)
 
-        pmaps = torch.stack((pmapA, pmapB), dim=1)
+        res_images, res_masks = [], []
 
-        torchvision.utils.save_image(pmaps, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}.png"), nrow=2)
+        for idx in range(BATCH_SIZE//2):
+            res_images.append(imagesA[idx])
+            res_masks.append(pmapA[idx])
+
+            res_images.append(imagesB[idx])
+            res_masks.append(pmapB[idx])
+
+        images_T = torch.stack(res_images)
+        masks_T = torch.stack(res_masks)
+
+        torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"images_batch_{batch_idx}.png"), nrow=2)
+        torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"masks_batch_{batch_idx}.png"), nrow=2)
 
     delta = time.time() - t_start
 
