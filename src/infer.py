@@ -5,6 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
                 --img_dir images \
                 --mask_dir ground_truth \
                 --checkpoint_load_dir /home/SharedData/intern_sayan/iCoseg/ \
+                --output_dir ./results \
                 --gpu 1
 """
 
@@ -18,6 +19,7 @@ import time
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+import torchvision
 from tqdm import tqdm
 
 #-----------#
@@ -29,7 +31,8 @@ parser = argparse.ArgumentParser(description='Train a SegNet model')
 parser.add_argument('--dataset_root', required=True)
 parser.add_argument('--img_dir', required=True)
 parser.add_argument('--mask_dir', required=True)
-parser.add_argument('--checkpoint_load_dir', default=False)
+parser.add_argument('--checkpoint_load_dir', required=True)
+parser.add_argument('--output_dir', required=True)
 parser.add_argument('--gpu', default=None)
 
 args = parser.parse_args()
@@ -42,21 +45,20 @@ args = parser.parse_args()
 
 DEBUG = False
 
-## Optimiser
-LEARNING_RATE = 0.0001
-BETAS = (0.9, 0.999)
 
 ## Dataset
 BATCH_SIZE = 2 * 1 # two images at a time for Siamese net
 INPUT_CHANNELS = 3 # RGB
 OUTPUT_CHANNELS = 2 # BG + FG channel
 
-## Training
+## Inference
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
-NUM_EPOCHS = 1000
 
+## Output Dir
+OUTPUT_DIR = args.output_dir
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def infer():
@@ -90,7 +92,9 @@ def infer():
         imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
         imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
 
-        pmapA, pmapB = model(imagesA_v, imagesB_v)
+        pmaps = model(imagesA_v, imagesB_v)
+
+        torchvision.utils.save_image(pmaps, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}.png"), nrow=2)
 
     delta = time.time() - t_start
 
