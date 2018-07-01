@@ -107,6 +107,8 @@ def infer():
         images_T = torch.stack(res_images)
         masks_T = torch.stack(res_masks)
 
+        # pdb.set_trace()
+
         torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_images.png"), nrow=2)
         torchvision.utils.save_image(masks_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_masks.png"), nrow=2)
 
