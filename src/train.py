@@ -96,7 +96,7 @@ def train():
 
             # pdb.set_trace()
 
-            eq_labels = LongTensor(torch.stack([torch.ones(mask_dim) if eq == 1 else torch.zeros(mask_dim) for eq in labelsA == labelsB]).long())
+            eq_labels = LongTensor(torch.stack([torch.ones(mask_dim).long() if eq == 1 else torch.zeros(mask_dim).long() for eq in labelsA == labelsB]))
 
             masksA = masksA * eq_labels
             masksB = masksB * eq_labels
