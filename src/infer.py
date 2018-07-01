@@ -101,14 +101,14 @@ def infer():
             res_images.append(imagesA[idx])
             res_images.append(imagesB[idx])
 
-            res_masks.append(torch.argmax(pmapA[idx], dim=1))
-            res_masks.append(torch.argmax(pmapB[idx], dim=1))
+            res_masks.append(torch.argmax(pmapA[idx], dim=0))
+            res_masks.append(torch.argmax(pmapB[idx], dim=0))
 
         images_T = torch.stack(res_images)
         masks_T = torch.stack(res_masks)
 
-        torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"images_batch_{batch_idx}.png"), nrow=2)
-        torchvision.utils.save_image(masks_T, os.path.join(OUTPUT_DIR, f"masks_batch_{batch_idx}.png"), nrow=2)
+        torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_images.png"), nrow=2)
+        torchvision.utils.save_image(masks_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_masks.png"), nrow=2)
 
     delta = time.time() - t_start
 
