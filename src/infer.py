@@ -120,9 +120,6 @@ if __name__ == "__main__":
     if DEBUG:
         print(model)
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, betas=BETAS)
-
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
 
@@ -130,7 +127,6 @@ if __name__ == "__main__":
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
         model = model.cuda()
-        criterion = criterion.cuda()
 
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor
