@@ -132,7 +132,7 @@ if __name__ == "__main__":
         LongTensor = torch.cuda.LongTensor
 
     if LOAD_CHECKPOINT:
-        model.load_state_dict(torch.load(LOAD_CHECKPOINT))
+        model.load_state_dict(torch.load(os.path.join(LOAD_CHECKPOINT, "coseg_model_best.pth")))
 
 
     #------------#
