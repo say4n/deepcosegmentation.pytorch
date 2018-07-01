@@ -97,7 +97,7 @@ def infer():
 
         # pdb.set_trace()
 
-        res_images, res_masks = [], []
+        res_images, res_masks, gt_masks = [], [], []
 
         for idx in range(BATCH_SIZE//2):
             res_images.append(imagesA[idx])
@@ -106,13 +106,19 @@ def infer():
             res_masks.append(torch.argmax(pmapA[idx], dim=0).reshape(1, 512, 512))
             res_masks.append(torch.argmax(pmapB[idx], dim=0).reshape(1, 512, 512))
 
+            gt_masks.append(masksA[idx])
+            gt_masks.append(masksB[idx])
+
+
         images_T = torch.stack(res_images)
         masks_T = torch.stack(res_masks)
+        gt_masks_T = torch.stack(gt_masks)
 
         # pdb.set_trace()
 
         torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_images.png"), nrow=2)
         torchvision.utils.save_image(masks_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_masks.png"), nrow=2)
+        torchvision.utils.save_image(gt_masks_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_gt_masks.png"), nrow=2)
 
     delta = time.time() - t_start
 
