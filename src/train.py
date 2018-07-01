@@ -99,7 +99,7 @@ def train():
             eq_labels = []
 
             for idx in range(BATCH_SIZE//2):
-                if labelsA[idx] == labelsB[idx]:
+                if torch.equal(labelsA[idx], labelsB[idx]):
                     eq_labels.append(torch.ones(mask_dim).type(LongTensor))
                 else:
                     eq_labels.append(torch.zeros(mask_dim).type(LongTensor))
