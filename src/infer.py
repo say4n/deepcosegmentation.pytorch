@@ -91,7 +91,9 @@ def infer():
         imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
         imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
 
-        pmaps = model(imagesA_v, imagesB_v)
+        pmapA, pmapB = model(imagesA_v, imagesB_v)
+
+        pmaps = torch.stack(pmapA, pmapB, dim=1)
 
         torchvision.utils.save_image(pmaps, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}.png"), nrow=2)
 
