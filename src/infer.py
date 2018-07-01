@@ -1,7 +1,7 @@
 """
 Train SegNet based Siamese network
 
-usage: train.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
+usage: infer.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
                 --img_dir images \
                 --mask_dir ground_truth \
                 --checkpoint_load_dir /home/SharedData/intern_sayan/iCoseg/ \
