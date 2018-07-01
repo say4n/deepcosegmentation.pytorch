@@ -53,7 +53,6 @@ OUTPUT_CHANNELS = 2 # BG + FG channel
 
 ## Inference
 CUDA = args.gpu
-CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
 
 ## Output Dir
