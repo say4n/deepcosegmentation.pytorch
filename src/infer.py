@@ -106,8 +106,8 @@ def infer():
             res_masks.append(torch.argmax(pmapA[idx], dim=0).reshape(1, 512, 512))
             res_masks.append(torch.argmax(pmapB[idx], dim=0).reshape(1, 512, 512))
 
-            gt_masks.append(masksA[idx])
-            gt_masks.append(masksB[idx])
+            gt_masks.append(masksA[idx].reshape(1, 512, 512))
+            gt_masks.append(masksB[idx].reshape(1, 512, 512))
 
 
         images_T = torch.stack(res_images)
