@@ -67,7 +67,7 @@ def train():
     model.train()
 
     for epoch in range(NUM_EPOCHS):
-        loss_f, lossA_f, lossB_f = 0, 0, 0
+        loss_f, lossA_f, lossB_f, intersection, union = 0, 0, 0, 0, 0
         t_start = time.time()
 
         for batch_idx, batch in tqdm(enumerate(dataloader)):
@@ -140,12 +140,28 @@ def train():
             lossA_f = lossA.float()
             lossB_f = lossB.float()
 
+            # IoU metric
+            intersection_a, intersection_b, union_a, union_b = 0, 0, 0, 0
+
+            for idx in range(BATCH_SIZE//2):
+                intersection_a += np.sum(torch.argmax(pmapA[idx], dim=0).cpu().numpy() & masksA[idx].cpu().numpy())
+                intersection_b += np.sum(torch.argmax(pmapB[idx], dim=0).cpu().numpy() & masksB[idx].cpu().numpy())
+
+                union_a += np.sum(torch.argmax(pmapA[idx], dim=0).cpu().numpy() | masksA[idx].cpu().numpy())
+                union_b += np.sum(torch.argmax(pmapB[idx], dim=0).cpu().numpy() | masksB[idx].cpu().numpy())
+
+            intersection += intersection_a + intersection_b
+            uninon += union_a + union_b
+
+
         delta = time.time() - t_start
 
 
         writer.add_scalar("loss/lossA", lossA_f, epoch)
         writer.add_scalar("loss/lossB", lossB_f, epoch)
         writer.add_scalar("loss/loss", loss_f, epoch)
+
+        writer.add_scalar("metrics/iou", intersection/union, epoch)
 
 
         is_better = loss_f < prev_loss
