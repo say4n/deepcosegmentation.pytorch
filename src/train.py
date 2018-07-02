@@ -152,7 +152,7 @@ def train():
                 union_b += np.sum(torch.argmax(pmapB[idx], dim=0).cpu().numpy() | masksB[idx].cpu().numpy())
 
             intersection += intersection_a + intersection_b
-            uninon += union_a + union_b
+            union += union_a + union_b
 
 
         delta = time.time() - t_start
