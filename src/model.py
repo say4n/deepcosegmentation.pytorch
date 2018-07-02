@@ -89,36 +89,49 @@ class SiameseSegNet(nn.Module):
 
 
     def compute_correlation(self, featureA, featureB):
-        # https://github.com/pytorch/pytorch/issues/4073
-        B = featureA.shape[0]
-        W = featureA.shape[-1]
-        H = featureA.shape[-2]
+        pass
 
-        D = 2*max(W, H)
-        patch_size = 3
 
-        if DEBUG:
-            print(f"fA, fB := [ B: {B}, W: {W}, H: {H} ]")
+    def pearsonr(x, y):
+        """
+        Mimics `scipy.stats.pearsonr`
 
-        fA = featureA.transpose(1, 2).transpose(2, 3).detach().cpu()            # B, H, W, C
-        fB = featureB.transpose(1, 2).transpose(2, 3).detach().cpu()            # B, H, W, C
+        Arguments
+        ---------
+        x : 1D torch.Tensor
+        y : 1D torch.Tensor
 
-        cAB = torch.zeros((B, W, H, D**2))                                      # B, H, W, D^2
+        Returns
+        -------
+        r_val : float
+            pearsonr correlation coefficient between x and y
 
-        for b in range(B):
-            for i in range(H):
-                for j in range(W):
-                    for dm in range(-patch_size//2, patch_size//2 + 1):
-                        for dn in range(-patch_size//2, patch_size//2 + 1):
-                            m, n, k = i + dm, j + dn, dn * D + dm
+        Scipy docs ref:
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html
 
-                            if 0 <= m < H and 0 <= n < W:
-                                cAB[b, i, j] += fA[b, i, j] * fB[b, m, n]
+        Scipy code ref:
+            https://github.com/scipy/scipy/blob/v0.19.0/scipy/stats/stats.py#L2975-L3033
+        Example:
+            >>> x = np.random.randn(100)
+            >>> y = np.random.randn(100)
+            >>> sp_corr = scipy.stats.pearsonr(x, y)[0]
+            >>> th_corr = pearsonr(torch.from_numpy(x), torch.from_numpy(y))
+            >>> np.allclose(sp_corr, th_corr)
 
-        if self.gpu:
-            return cAB.transpose_(3, 2).transpose_(2, 1).cuda()                 # B, D^2, H, W
-        else:
-            return cAB.transpose_(3, 2).transpose_(2, 1)                        # B, D^2, H, W
+        Source: https://github.com/pytorch/pytorch/issues/1254
+        """
+        mean_x = torch.mean(x)
+        mean_y = torch.mean(y)
+        xm = x.sub(mean_x)
+        ym = y.sub(mean_y)
+
+        r_num = xm.dot(ym)
+        r_den = torch.norm(xm, 2) * torch.norm(ym, 2)
+
+        r_val = r_num / r_den
+
+        return r_val
+
 
 
     def concat_correlation(self, featureA, featureB):
