@@ -40,12 +40,12 @@ args = parser.parse_args()
 #-----------#
 
 ## Debug
-
 DEBUG = False
 
 ## Optimiser
-LEARNING_RATE = 0.001
+LEARNING_RATE = 1e-5
 BETAS = (0.9, 0.999)
+WEIGHT_DECAY = 0.0005
 
 ## Dataset
 BATCH_SIZE = 2 * 2 # two images at a time for Siamese net
@@ -182,7 +182,10 @@ if __name__ == "__main__":
         print(model)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, betas=BETAS)
+    optimizer = torch.optim.Adam(model.parameters(),
+                                 lr=LEARNING_RATE,
+                                 betas=BETAS,
+                                 weight_decay=WEIGHT_DECAY)
 
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
