@@ -12,7 +12,7 @@ Model architecture inspired by [SegNet](http://mi.eng.cam.ac.uk/projects/segnet/
 
 `src/inference.py` - infer results from trained model
 
-`src/dataset.py` - dataloader for Pascal VOC
+`src/dataset.py` - dataloader for iCoseg dataset
 
 
 ## license
