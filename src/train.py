@@ -9,7 +9,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
 """
 
 import argparse
-from dataset import iCosegDataset
+from dataset import iCosegDataset, PASCALVOCCosegDataset
 from model import SiameseSegNet
 import numpy as np
 import os
@@ -199,6 +199,11 @@ if __name__ == "__main__":
                                    mask_dir=mask_dir)
 
     dataloader = DataLoader(iCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
+
+    # PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir=image_dir,
+    #                                mask_dir=mask_dir)
+
+    # dataloader = DataLoader(PASCALVOCCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
 
     #-------------#
     #    Model    #
