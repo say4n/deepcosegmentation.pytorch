@@ -86,10 +86,8 @@ class PASCALVOCCosegDataset(Dataset):
         return img
 
     def mask_loader(self, path):
-        img = Image.open(path).convert('L').resize(self.img_size)
+        img = Image.open(path).convert('1').resize(self.img_size)
         img = np.array(img).astype(np.uint8)
-
-        img[img == 255] = 1
 
         return img
 
