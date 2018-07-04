@@ -120,4 +120,3 @@ if __name__ == "__main__":
     PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/PASCAL_coseg/images",
                                                    mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/PASCAL_coseg/GT")
     print(f"PASCALVOCCoseg_dataset: # samples = {len(PASCALVOCCoseg_dataset)}")
-    PASCALVOCCoseg_dataset[0]
