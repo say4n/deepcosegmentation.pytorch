@@ -12,6 +12,7 @@ usage: infer.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
 import argparse
 from dataset import iCosegDataset, PASCALVOCCosegDataset
 from model import SiameseSegNet
+import numpy as np
 import os
 import pdb
 from tensorboardX import SummaryWriter
