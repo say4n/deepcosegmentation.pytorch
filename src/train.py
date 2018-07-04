@@ -195,15 +195,15 @@ if __name__ == "__main__":
     image_dir = os.path.join(root_dir, args.img_dir)
     mask_dir = os.path.join(root_dir, args.mask_dir)
 
-    iCoseg_dataset = iCosegDataset(image_dir=image_dir,
-                                   mask_dir=mask_dir)
-
-    dataloader = DataLoader(iCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
-
-    # PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir=image_dir,
+    # iCoseg_dataset = iCosegDataset(image_dir=image_dir,
     #                                mask_dir=mask_dir)
 
-    # dataloader = DataLoader(PASCALVOCCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
+    # dataloader = DataLoader(iCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
+
+    PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir=image_dir,
+                                   mask_dir=mask_dir)
+
+    dataloader = DataLoader(PASCALVOCCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
 
     #-------------#
     #    Model    #
