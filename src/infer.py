@@ -65,6 +65,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 def infer():
     model.eval()
 
+    intersection, union, precision = 0, 0, 0
     t_start = time.time()
 
     for batch_idx, batch in tqdm(enumerate(dataloader)):
@@ -125,10 +126,35 @@ def infer():
             gt_masks.append(masksA[idx].reshape(1, 512, 512))
             gt_masks.append(masksB[idx].reshape(1, 512, 512))
 
+        # pdb.set_trace()
 
         images_T = torch.stack(res_images)
         masks_T = torch.stack(res_masks)
         gt_masks_T = torch.stack(gt_masks)
+
+        # metrics - IoU & precision
+        intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
+
+        for idx in range(BATCH_SIZE//2):
+            pred_maskA = torch.argmax(pmapA[idx], dim=0).cpu().numpy()
+            pred_maskB = torch.argmax(pmapB[idx], dim=0).cpu().numpy()
+
+            masksA_cpu = masksA[idx].cpu().numpy()
+            masksB_cpu = masksB[idx].cpu().numpy()
+
+            intersection_a += np.sum(pred_maskA & masksA_cpu)
+            intersection_b += np.sum(pred_maskB & masksB_cpu)
+
+            union_a += np.sum(pred_maskA | masksA_cpu)
+            union_b += np.sum(pred_maskB | masksB_cpu)
+
+            precision_a += np.sum(pred_maskA == masksA_cpu)
+            precision_b += np.sum(pred_maskB == masksB_cpu)
+
+        intersection += intersection_a + intersection_b
+        union += union_a + union_b
+
+        precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
 
         # pdb.set_trace()
 
@@ -137,6 +163,8 @@ def infer():
         torchvision.utils.save_image(gt_masks_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_gt_masks.png"), nrow=2)
 
     delta = time.time() - t_start
+
+    print(f"Time elapsed: [{delta} secs], Precision : [{precision/(len(dataloader) * BATCH_SIZE)}], IoU : [{intersection/union}]")
 
 
 if __name__ == "__main__":
