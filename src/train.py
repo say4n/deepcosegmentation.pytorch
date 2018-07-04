@@ -1,11 +1,11 @@
 """
 Train SegNet based Siamese network
 
-usage: train.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
+usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
-                --mask_dir ground_truth \
-                --checkpoint_save_dir /home/SharedData/intern_sayan/iCoseg/ \
-                --gpu 1
+                --mask_dir GT \
+                --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
+                --gpu 0
 """
 
 import argparse
