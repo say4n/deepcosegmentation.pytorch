@@ -89,6 +89,8 @@ class PASCALVOCCosegDataset(Dataset):
         img = Image.open(path).convert('L').resize(self.img_size)
         img = np.array(img).astype(np.uint8)
 
+        img[img == 255] = 1
+
         return img
 
     def __len__(self):
@@ -120,3 +122,6 @@ if __name__ == "__main__":
     PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/PASCAL_coseg/images",
                                                    mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/PASCAL_coseg/GT")
     print(f"PASCALVOCCoseg_dataset: # samples = {len(PASCALVOCCoseg_dataset)}")
+
+    for idx in range(100):
+        PASCALVOCCoseg_dataset[idx]
