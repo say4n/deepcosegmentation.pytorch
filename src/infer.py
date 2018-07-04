@@ -165,7 +165,7 @@ def infer():
 
     delta = time.time() - t_start
 
-    print(f"Time elapsed: [{delta} secs], Precision : [{precision/(len(dataloader) * BATCH_SIZE)}], IoU : [{intersection/union}]")
+    print(f"\nTime elapsed: [{delta} secs]\nPrecision : [{precision/(len(dataloader) * BATCH_SIZE)}]\nIoU : [{intersection/union}]")
 
 
 if __name__ == "__main__":
