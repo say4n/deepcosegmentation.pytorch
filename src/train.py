@@ -138,8 +138,8 @@ def train():
 
             # Add losses for epoch
             loss_f += loss.float()
-            lossA_f = lossA.float()
-            lossB_f = lossB.float()
+            lossA_f += lossA.float()
+            lossB_f += lossB.float()
 
 
             # metrics - IoU & precision
