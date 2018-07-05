@@ -106,10 +106,10 @@ def train():
 
             eq_labels = torch.stack(eq_labels)
 
+            # pdb.set_trace()
+
             masksA = masksA * eq_labels.unsqueeze(1).unsqueeze(1)
             masksB = masksB * eq_labels.unsqueeze(1).unsqueeze(1)
-
-            # pdb.set_trace()
 
             imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
             imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
