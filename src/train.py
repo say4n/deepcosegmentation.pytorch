@@ -106,8 +106,8 @@ def train():
 
             eq_labels = torch.stack(eq_labels)
 
-            masksA = masksA * eq_labels
-            masksB = masksB * eq_labels
+            masksA = masksA * eq_labels.unsqueeze(1).unsqueeze(1)
+            masksB = masksB * eq_labels.unsqueeze(1).unsqueeze(1)
 
             # pdb.set_trace()
 
@@ -219,7 +219,7 @@ if __name__ == "__main__":
         print(model)
 
     criterion = nn.CrossEntropyLoss()
-    classifier_criterion = nn.BCELoss()
+    classifier_criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=LEARNING_RATE,
                                  betas=BETAS,
