@@ -49,7 +49,7 @@ BETAS = (0.9, 0.999)
 WEIGHT_DECAY = 0.0005
 
 ## Dataset
-BATCH_SIZE = 2 * 2  # two images at a time for Siamese net - 2x batch_size hence
+BATCH_SIZE = 2 * 1  # two images at a time for Siamese net - 2x batch_size hence
 INPUT_CHANNELS = 3  # RGB
 OUTPUT_CHANNELS = 2 # BG + FG channel
 
