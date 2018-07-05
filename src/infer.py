@@ -134,11 +134,6 @@ def infer():
         masks_T = torch.stack(res_masks)
         gt_masks_T = torch.stack(gt_masks)
 
-        # Add losses for epoch
-        loss_f += loss.float()
-        lossA_f += lossA.float()
-        lossB_f += lossB.float()
-        lossC_f += lossClasifier.float()
 
         # metrics - IoU & precision
         intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
