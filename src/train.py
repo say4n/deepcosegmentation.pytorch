@@ -127,7 +127,7 @@ def train():
 
             lossA = criterion(pmapA * similarity.unsqueeze(2).unsqueeze(2), masksA_v)
             lossB = criterion(pmapB * similarity.unsqueeze(2).unsqueeze(2), masksB_v)
-            lossClasifier = classifier_criterion(similarity, eq_labels)
+            lossClasifier = classifier_criterion(similarity, eq_labels.squeeze(1))
 
             loss = lossA + lossB + lossClasifier
 
