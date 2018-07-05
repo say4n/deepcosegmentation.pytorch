@@ -168,7 +168,8 @@ class SiameseSegNet(nn.Module):
             print(f"featureA.size(): {featureA.size()}")
             print(f"featureB.size(): {featureB.size()}")
 
-        similarity = self.classifier(torch.cat([featureA.view(featureA.size(0), -1), featureB.view(featureA.size(0), -1)]))
+        similarity = self.classifier(torch.cat([featureA.view(featureA.size(0), -1), featureB.view(featureA.size(0), -1)],
+                                               dim=1))
 
         if DEBUG:
             print(f"similarity: {similarity}")
