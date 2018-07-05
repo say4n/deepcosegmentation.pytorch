@@ -125,8 +125,8 @@ def train():
 
             # pdb.set_trace()
 
-            lossA = criterion(pmapA * similarity, masksA_v)
-            lossB = criterion(pmapB * similarity, masksB_v)
+            lossA = criterion(pmapA * torch.argmax(similarity, dim=1), masksA_v)
+            lossB = criterion(pmapB * torch.argmax(similarity, dim=1), masksB_v)
             lossClasifier = classifier_criterion(similarity, eq_labels)
 
             loss = lossA + lossB + lossClasifier
