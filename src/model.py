@@ -87,6 +87,17 @@ class SiameseSegNet(nn.Module):
                                      *decoder_blocks(64, self.output_channels),
                                      nn.Softmax(dim=1))
 
+        self.classifier = nn.Sequential(nn.Linear(2 * (1024 * 16 * 16), 512),
+                                        nn.ReLU(),
+                                        nn.Linear(512, 256),
+                                        nn.ReLU(),
+                                        nn.Linear(256, 64),
+                                        nn.ReLU(),
+                                        nn.Linear(64, 16),
+                                        nn.ReLU(),
+                                        nn.Linear(16, 2),
+                                        nn.Softmax(dim=1))
+
 
     def compute_correlation(self, featureA, featureB):
         pass
@@ -157,6 +168,11 @@ class SiameseSegNet(nn.Module):
             print(f"featureA.size(): {featureA.size()}")
             print(f"featureB.size(): {featureB.size()}")
 
+        similarity = self.classifier(torch.cat([featureA.view(featureA.size(0)), featureB.view(featureA.size(0))]))
+
+        if DEBUG:
+            print(f"similarity: {similarity}")
+
         correlationAB = self.concat_correlation(featureA, featureB)
         correlationBA = self.concat_correlation(featureB, featureA)
 
@@ -178,7 +194,7 @@ class SiameseSegNet(nn.Module):
             print(f"probability_mapA.size(): {probability_mapA.size()}")
             print(f"probability_mapB.size(): {probability_mapB.size()}")
 
-        return probability_mapA, probability_mapB
+        return probability_mapA, probability_mapB, similarity
 
 
 if __name__ == "__main__":

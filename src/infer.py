@@ -92,14 +92,13 @@ def infer():
 
         # pdb.set_trace()
 
-        mask_dim = imagesA[0].size()[1:]
         eq_labels = []
 
         for idx in range(BATCH_SIZE//2):
             if torch.equal(labelsA[idx], labelsB[idx]):
-                eq_labels.append(torch.ones(mask_dim).type(LongTensor))
+                eq_labels.append(torch.ones(1).type(LongTensor))
             else:
-                eq_labels.append(torch.zeros(mask_dim).type(LongTensor))
+                eq_labels.append(torch.zeros(1).type(LongTensor))
 
         eq_labels = torch.stack(eq_labels)
 

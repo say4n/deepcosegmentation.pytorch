@@ -68,7 +68,7 @@ def train():
     model.train()
 
     for epoch in range(NUM_EPOCHS):
-        loss_f, lossA_f, lossB_f, intersection, union, precision = 0, 0, 0, 0, 0, 0
+        loss_f, lossA_f, lossB_f, lossC_f, intersection, union, precision = 0, 0, 0, 0, 0, 0, 0
         t_start = time.time()
 
         for batch_idx, batch in tqdm(enumerate(dataloader)):
@@ -96,14 +96,13 @@ def train():
 
             # pdb.set_trace()
 
-            mask_dim = imagesA[0].size()[1:]
             eq_labels = []
 
             for idx in range(BATCH_SIZE//2):
                 if torch.equal(labelsA[idx], labelsB[idx]):
-                    eq_labels.append(torch.ones(mask_dim).type(LongTensor))
+                    eq_labels.append(torch.ones(1).type(LongTensor))
                 else:
-                    eq_labels.append(torch.zeros(mask_dim).type(LongTensor))
+                    eq_labels.append(torch.zeros(1).type(LongTensor))
 
             eq_labels = torch.stack(eq_labels)
 
@@ -115,7 +114,7 @@ def train():
             imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
             imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
 
-            pmapA, pmapB = model(imagesA_v, imagesB_v)
+            pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
 
             # pdb.set_trace()
 
@@ -126,10 +125,11 @@ def train():
 
             # pdb.set_trace()
 
-            lossA = criterion(pmapA, masksA_v)
-            lossB = criterion(pmapB, masksB_v)
+            lossA = criterion(pmapA * similarity, masksA_v)
+            lossB = criterion(pmapB * similarity, masksB_v)
+            lossClasifier = classifier_criterion(similarity, eq_labels)
 
-            loss = lossA + lossB
+            loss = lossA + lossB + lossClasifier
 
             loss.backward()
 
@@ -140,6 +140,7 @@ def train():
             loss_f += loss.float()
             lossA_f += lossA.float()
             lossB_f += lossB.float()
+            lossC_f += lossClasifier.float()
 
 
             # metrics - IoU & precision
@@ -172,6 +173,7 @@ def train():
 
         writer.add_scalar("loss/lossA", lossA_f, epoch)
         writer.add_scalar("loss/lossB", lossB_f, epoch)
+        writer.add_scalar("loss/lossClassifier", lossC_f, epoch)
         writer.add_scalar("loss/loss", loss_f, epoch)
 
         writer.add_scalar("metrics/precision", precision/(len(dataloader) * BATCH_SIZE), epoch)
@@ -217,6 +219,7 @@ if __name__ == "__main__":
         print(model)
 
     criterion = nn.CrossEntropyLoss()
+    classifier_criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=LEARNING_RATE,
                                  betas=BETAS,
@@ -230,6 +233,7 @@ if __name__ == "__main__":
 
         model = model.cuda()
         criterion = criterion.cuda()
+        classifier_criterion = classifier_criterion.cuda()
 
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor
