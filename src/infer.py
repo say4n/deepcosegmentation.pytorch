@@ -86,6 +86,8 @@ def infer():
         labelsA, labelsB = zip(*pairwise_labels)
         masksA, masksB = zip(*pairwise_masks)
 
+        # pdb.set_trace()
+
         imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
         labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
         masksA, masksB = torch.stack(masksA).long(), torch.stack(masksB).long()
@@ -102,15 +104,15 @@ def infer():
 
         eq_labels = torch.stack(eq_labels)
 
-        masksA = masksA * eq_labels
-        masksB = masksB * eq_labels
-
         # pdb.set_trace()
+
+        masksA = masksA * eq_labels.unsqueeze(1)
+        masksB = masksB * eq_labels.unsqueeze(1)
 
         imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
         imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
 
-        pmapA, pmapB = model(imagesA_v, imagesB_v)
+        pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
 
         # pdb.set_trace()
 
@@ -120,8 +122,8 @@ def infer():
             res_images.append(imagesA[idx])
             res_images.append(imagesB[idx])
 
-            res_masks.append(torch.argmax(pmapA[idx], dim=0).reshape(1, 512, 512))
-            res_masks.append(torch.argmax(pmapB[idx], dim=0).reshape(1, 512, 512))
+            res_masks.append(torch.argmax((pmapA * similarity.unsqueeze(2).unsqueeze(2))[idx], dim=0).reshape(1, 512, 512))
+            res_masks.append(torch.argmax((pmapB * similarity.unsqueeze(2).unsqueeze(2))[idx], dim=0).reshape(1, 512, 512))
 
             gt_masks.append(masksA[idx].reshape(1, 512, 512))
             gt_masks.append(masksB[idx].reshape(1, 512, 512))
@@ -131,6 +133,12 @@ def infer():
         images_T = torch.stack(res_images)
         masks_T = torch.stack(res_masks)
         gt_masks_T = torch.stack(gt_masks)
+
+        # Add losses for epoch
+        loss_f += loss.float()
+        lossA_f += lossA.float()
+        lossB_f += lossB.float()
+        lossC_f += lossClasifier.float()
 
         # metrics - IoU & precision
         intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
