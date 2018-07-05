@@ -108,8 +108,8 @@ def train():
 
             # pdb.set_trace()
 
-            masksA = masksA * eq_labels.unsqueeze(1).unsqueeze(1)
-            masksB = masksB * eq_labels.unsqueeze(1).unsqueeze(1)
+            masksA = masksA * eq_labels.unsqueeze(1)
+            masksB = masksB * eq_labels.unsqueeze(1)
 
             imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
             imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
