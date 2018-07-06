@@ -156,10 +156,10 @@ def train():
 
             loss = lossA + lossB + lossClasifier
 
-            import gc
+            import gc, functools
             for obj in gc.get_objects():
                 if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
-                    print(reduce(op.mul, obj.size()) if len(obj.size()) > 0 else 0, type(obj), obj.size())
+                    print(functools.reduce(op.mul, obj.size()) if len(obj.size()) > 0 else 0, type(obj), obj.size())
 
             # pdb.set_trace()
 
