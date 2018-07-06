@@ -33,7 +33,7 @@ parser.add_argument('--img_dir', required=True)
 parser.add_argument('--mask_dir', required=True)
 parser.add_argument('--checkpoint_save_dir', default=False)
 parser.add_argument('--checkpoint_load_dir', default=False)
-parser.add_argument('--checkpoint_name', deafult="deepcoseg_model_best.pth")
+parser.add_argument('--checkpoint_name', default="deepcoseg_model_best.pth")
 parser.add_argument('--gpu', default=None)
 
 args = parser.parse_args()
