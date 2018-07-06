@@ -74,9 +74,9 @@ def train():
         t_start = time.time()
 
         for batch_idx, batch in tqdm(enumerate(dataloader)):
-            images = torch.autograd.Variable(batch["image"].type(FloatTensor), requires_grad=False)
-            labels = torch.autograd.Variable(batch["label"].type(LongTensor), requires_grad=False)
-            masks  = torch.autograd.Variable(batch["mask"].type(FloatTensor), requires_grad=False)
+            images = batch["image"].type(FloatTensor)
+            labels = batch["label"].type(LongTensor)
+            masks  = batch["mask"].type(FloatTensor)
 
             # pdb.set_trace()
 
@@ -90,7 +90,16 @@ def train():
             labelsA, labelsB = zip(*pairwise_labels)
             masksA, masksB = zip(*pairwise_masks)
 
+            del images
+            del labels
+            del masks
+
+            del pairwise_images
+            del pairwise_labels
+            del pairwise_masks
+
             # pdb.set_trace()
+
 
             imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
             labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
