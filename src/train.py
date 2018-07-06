@@ -127,9 +127,9 @@ def train():
 
             # pdb.set_trace()
 
-            lossA = criterion(pmapA * eq_labels.type_as(FloatTensor).unsqueeze(2).unsqueeze(2), masksA_v)
-            lossB = criterion(pmapB * eq_labels.type_as(FloatTensor).unsqueeze(2).unsqueeze(2), masksB_v)
-            lossClasifier = classifier_criterion(similarity, eq_labels.type_as(LongTensor).squeeze(1))
+            lossA = criterion(pmapA * eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2), masksA_v)
+            lossB = criterion(pmapB * eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2), masksB_v)
+            lossClasifier = classifier_criterion(similarity, eq_labels.squeeze(1))
 
             loss = lossA + lossB + lossClasifier
 
