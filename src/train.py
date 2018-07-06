@@ -90,14 +90,6 @@ def train():
             labelsA, labelsB = zip(*pairwise_labels)
             masksA, masksB = zip(*pairwise_masks)
 
-            del images
-            del labels
-            del masks
-
-            del pairwise_images
-            del pairwise_labels
-            del pairwise_masks
-
             # pdb.set_trace()
 
 
@@ -117,9 +109,6 @@ def train():
 
             eq_labels = torch.autograd.Variable(torch.stack(eq_labels), requires_grad=False)
 
-            del labelsA
-            del labelsB
-
             # pdb.set_trace()
 
             eq_labels_unsqueezed = eq_labels.unsqueeze(1)
@@ -127,15 +116,11 @@ def train():
             masksA = masksA * eq_labels_unsqueezed
             masksB = masksB * eq_labels_unsqueezed
 
-            del eq_labels_unsqueezed
 
             imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor), requires_grad=False)
             imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor), requires_grad=False)
 
             pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
-
-            del imagesA_v
-            del imagesB_v
 
             # pdb.set_trace()
 
@@ -151,8 +136,6 @@ def train():
             lossA = criterion(pmapA * eq_mul, masksA_v)
             lossB = criterion(pmapB * eq_mul, masksB_v)
             lossClasifier = classifier_criterion(similarity, eq_labels.squeeze(1))
-
-            del eq_mul
 
             loss = lossA + lossB + lossClasifier
 
