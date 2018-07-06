@@ -5,6 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
                 --mask_dir GT \
                 --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
+                --checkpoint_name deepcoseg_model_best.pth
                 --gpu 0
 """
 
@@ -32,6 +33,7 @@ parser.add_argument('--img_dir', required=True)
 parser.add_argument('--mask_dir', required=True)
 parser.add_argument('--checkpoint_save_dir', default=False)
 parser.add_argument('--checkpoint_load_dir', default=False)
+parser.add_argument('--checkpoint_name', deafult="deepcoseg_model_best.pth")
 parser.add_argument('--gpu', default=None)
 
 args = parser.parse_args()
@@ -186,7 +188,7 @@ def train():
             prev_loss = loss_f
 
             if CHECKPOINT:
-                torch.save(model.state_dict(), os.path.join(CHECKPOINT, "coseg_model_best.pth"))
+                torch.save(model.state_dict(), os.path.join(CHECKPOINT, args.checkpoint_name))
 
         print("Epoch #{}\tLoss: {:.8f}\t Time: {:2f}s".format(epoch+1, loss_f, delta))
 
@@ -239,7 +241,7 @@ if __name__ == "__main__":
         LongTensor = torch.cuda.LongTensor
 
     if LOAD_CHECKPOINT:
-        model.load_state_dict(torch.load(os.path.join(LOAD_CHECKPOINT, "coseg_model_best.pth")))
+        model.load_state_dict(torch.load(os.path.join(LOAD_CHECKPOINT, args.checkpoint_name)))
 
 
     #-------------#
