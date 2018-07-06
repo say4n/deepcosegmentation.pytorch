@@ -5,7 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
                 --mask_dir GT \
                 --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
-                --checkpoint_name deepcoseg_model_best.pth
+                --checkpoint_name deepcoseg_model_best.pth \
                 --gpu 0
 """
 
