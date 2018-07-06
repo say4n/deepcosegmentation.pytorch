@@ -107,7 +107,7 @@ def train():
                 else:
                     eq_labels.append(torch.zeros(1).type(LongTensor))
 
-            eq_labels = torch.autograd.Variable(torch.stack(eq_labels), requires_grad=False)
+            eq_labels = torch.stack(eq_labels)
 
             # pdb.set_trace()
 
@@ -117,8 +117,8 @@ def train():
             masksB = masksB * eq_labels_unsqueezed
 
 
-            imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor), requires_grad=False)
-            imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor), requires_grad=False)
+            imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor))
+            imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor))
 
             pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
 
@@ -126,8 +126,8 @@ def train():
 
             optimizer.zero_grad()
 
-            masksA_v = torch.autograd.Variable(masksA.type(LongTensor), requires_grad=False)
-            masksB_v = torch.autograd.Variable(masksB.type(LongTensor), requires_grad=False)
+            masksA_v = torch.autograd.Variable(masksA.type(LongTensor))
+            masksB_v = torch.autograd.Variable(masksB.type(LongTensor))
 
             # pdb.set_trace()
 
