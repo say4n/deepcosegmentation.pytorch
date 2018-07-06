@@ -108,6 +108,9 @@ def train():
 
             eq_labels = torch.stack(eq_labels)
 
+            del labelsA
+            del labelsB
+
             # pdb.set_trace()
 
             masksA = masksA * eq_labels.unsqueeze(1)
@@ -122,8 +125,8 @@ def train():
 
             optimizer.zero_grad()
 
-            masksA_v = torch.autograd.Variable(LongTensor(masksA))
-            masksB_v = torch.autograd.Variable(LongTensor(masksB))
+            masksA_v = torch.autograd.Variable(LongTensor(masksA), requires_grad=False)
+            masksB_v = torch.autograd.Variable(LongTensor(masksB), requires_grad=False)
 
             # pdb.set_trace()
 
@@ -139,11 +142,10 @@ def train():
 
 
             # Add losses for epoch
-            loss_f += loss.float()
-            lossA_f += lossA.float()
-            lossB_f += lossB.float()
-            lossC_f += lossClasifier.float()
-
+            loss_f += loss.detach().cpu().float()
+            lossA_f += lossA.detach().cpu().float()
+            lossB_f += lossB.detach().cpu().float()
+            lossC_f += lossClasifier.detach().cpu().float()
 
             # metrics - IoU & precision
             intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
