@@ -115,33 +115,44 @@ def train():
                 else:
                     eq_labels.append(torch.zeros(1).type(LongTensor))
 
-            eq_labels = torch.stack(eq_labels)
+            eq_labels = torch.autograd.Variable(torch.stack(eq_labels), requires_grad=False)
 
             del labelsA
             del labelsB
 
             # pdb.set_trace()
 
-            masksA = masksA * eq_labels.unsqueeze(1)
-            masksB = masksB * eq_labels.unsqueeze(1)
+            eq_labels_unsqueezed = eq_labels.unsqueeze(1)
 
-            imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
-            imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
+            masksA = masksA * eq_labels_unsqueezed
+            masksB = masksB * eq_labels_unsqueezed
+
+            del eq_labels_unsqueezed
+
+            imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor), requires_grad=False)
+            imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor), requires_grad=False)
 
             pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
+
+            del imagesA_v
+            del imagesB_v
 
             # pdb.set_trace()
 
             optimizer.zero_grad()
 
-            masksA_v = torch.autograd.Variable(LongTensor(masksA), requires_grad=False)
-            masksB_v = torch.autograd.Variable(LongTensor(masksB), requires_grad=False)
+            masksA_v = torch.autograd.Variable(masksA.type(LongTensor), requires_grad=False)
+            masksB_v = torch.autograd.Variable(masksB.type(LongTensor), requires_grad=False)
 
             # pdb.set_trace()
 
-            lossA = criterion(pmapA * eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2), masksA_v)
-            lossB = criterion(pmapB * eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2), masksB_v)
+            eq_mul = eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2)
+
+            lossA = criterion(pmapA * eq_mul, masksA_v)
+            lossB = criterion(pmapB * eq_mul, masksB_v)
             lossClasifier = classifier_criterion(similarity, eq_labels.squeeze(1))
+
+            del eq_mul
 
             loss = lossA + lossB + lossClasifier
 
@@ -151,10 +162,10 @@ def train():
 
 
             # Add losses for epoch
-            loss_f += loss.detach().cpu().float()
-            lossA_f += lossA.detach().cpu().float()
-            lossB_f += lossB.detach().cpu().float()
-            lossC_f += lossClasifier.detach().cpu().float()
+            loss_f += loss.cpu().float()
+            lossA_f += lossA.cpu().float()
+            lossB_f += lossB.cpu().float()
+            lossC_f += lossClasifier.cpu().float()
 
             # metrics - IoU & precision
             intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
