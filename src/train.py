@@ -74,9 +74,9 @@ def train():
         t_start = time.time()
 
         for batch_idx, batch in tqdm(enumerate(dataloader)):
-            images = batch["image"].type(FloatTensor)
-            labels = batch["label"].type(LongTensor)
-            masks  = batch["mask"].type(FloatTensor)
+            images = torch.autograd.Variable(batch["image"].type(FloatTensor), requires_grad=False)
+            labels = torch.autograd.Variable(batch["label"].type(LongTensor), requires_grad=False)
+            masks  = torch.autograd.Variable(batch["mask"].type(FloatTensor), requires_grad=False)
 
             # pdb.set_trace()
 
