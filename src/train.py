@@ -156,6 +156,8 @@ def train():
 
             loss = lossA + lossB + lossClasifier
 
+            # pdb.set_trace()
+
             loss.backward()
 
             optimizer.step()
