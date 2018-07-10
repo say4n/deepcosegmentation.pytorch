@@ -1,5 +1,8 @@
 """
 Pytorch implementation of Deep Co-segmentation
+
+author - Sayan Goswami
+email  - sayan.goswami.106@gmail.com
 """
 
 import torch
@@ -146,7 +149,6 @@ class SiameseSegNet(nn.Module):
 
 
     def concat_correlation(self, featureA, featureB):
-        # hack (?)
         return featureB
 
 

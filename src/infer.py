@@ -1,5 +1,5 @@
 """
-Train SegNet based Siamese network
+Test SegNet based Siamese network
 
 usage: infer.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
                 --img_dir images \
@@ -7,6 +7,9 @@ usage: infer.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
                 --checkpoint_load_dir /home/SharedData/intern_sayan/iCoseg/ \
                 --output_dir ./results \
                 --gpu 1
+
+author - Sayan Goswami
+email  - sayan.goswami.106@gmail.com
 """
 
 import argparse

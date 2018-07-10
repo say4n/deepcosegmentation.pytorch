@@ -1,4 +1,9 @@
-"""Object Co-segmentation Datasets"""
+"""
+Object Co-segmentation Datasets
+
+author - Sayan Goswami
+email  - sayan.goswami.106@gmail.com
+"""
 
 
 import numpy as np
