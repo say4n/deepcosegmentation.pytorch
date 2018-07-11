@@ -161,8 +161,8 @@ def train():
                 pred_maskA = np.uint64(pmapA_sq[idx].detach().cpu().numpy())
                 pred_maskB = np.uint64(pmapB_sq[idx].detach().cpu().numpy())
 
-                masksA_cpu = masksA[idx].cpu().numpy()
-                masksB_cpu = masksB[idx].cpu().numpy()
+                masksA_cpu = np.uint64(masksA[idx].cpu().numpy())
+                masksB_cpu = np.uint64(masksB[idx].cpu().numpy())
 
                 intersection_a += np.sum(pred_maskA & masksA_cpu)
                 intersection_b += np.sum(pred_maskB & masksB_cpu)
