@@ -136,8 +136,8 @@ def train():
 
             optimizer.zero_grad()
 
-            lossA = criterion(pmapA_sq * eq_labels, masksA_v) / 512 * 512
-            lossB = criterion(pmapB_sq * eq_labels, masksB_v) / 512 * 512
+            lossA = criterion(pmapA_sq * eq_labels, masksA) / 512 * 512
+            lossB = criterion(pmapB_sq * eq_labels, masksB) / 512 * 512
             lossClasifier = criterion(similarity, eq_labels.squeeze(1)) / BATCH_SIZE
 
             loss = lossA + lossB + lossClasifier
