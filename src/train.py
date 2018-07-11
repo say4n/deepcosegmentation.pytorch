@@ -183,8 +183,6 @@ def train():
             correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_labels.detach().cpu().numpy())
             total_predictions += BATCH_SIZE//2
 
-            pdb.set_trace()
-
 
         delta = time.time() - t_start
 
