@@ -111,7 +111,7 @@ def train():
 
             eq_labels = torch.stack(eq_labels)
 
-            pdb.set_trace()
+            # pdb.set_trace()
 
             masksA = masksA * eq_labels
             masksB = masksB * eq_labels
@@ -135,7 +135,7 @@ def train():
 
             lossA = criterion(pmapA_sq * eq_labels, masksA) / 512 * 512
             lossB = criterion(pmapB_sq * eq_labels, masksB) / 512 * 512
-            lossClasifier = criterion(similarity, eq_labels.squeeze(1)) / BATCH_SIZE
+            lossClasifier = criterion(similarity, eq_labels) / BATCH_SIZE
 
             loss = lossA + lossB + lossClasifier
 
@@ -156,8 +156,8 @@ def train():
             intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
             for idx in range(BATCH_SIZE//2):
-                pred_maskA = torch.argmax(pmapA[idx], dim=0).cpu().numpy()
-                pred_maskB = torch.argmax(pmapB[idx], dim=0).cpu().numpy()
+                pred_maskA = np.uint64(pmapA[idx].cpu().numpy())
+                pred_maskB = np.uint64(pmapB[idx].cpu().numpy())
 
                 masksA_cpu = masksA[idx].cpu().numpy()
                 masksB_cpu = masksB[idx].cpu().numpy()
