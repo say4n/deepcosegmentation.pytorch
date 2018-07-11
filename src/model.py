@@ -88,7 +88,7 @@ class SiameseSegNet(nn.Module):
                                      nn.Upsample(scale_factor=2, mode='nearest'),
                                      *decoder_blocks(128, 64),
                                      *decoder_blocks(64, self.output_channels),
-                                     nn.Sigmoid(dim=1))
+                                     nn.Sigmoid())
 
         self.classifier = nn.Sequential(nn.Linear(2 * (1024 * 16 * 16), 512),
                                         nn.ReLU(),
@@ -99,7 +99,7 @@ class SiameseSegNet(nn.Module):
                                         nn.Linear(64, 16),
                                         nn.ReLU(),
                                         nn.Linear(16, 1),
-                                        nn.Sigmoid(dim=1))
+                                        nn.Sigmoid())
 
 
     def compute_correlation(self, featureA, featureB):
