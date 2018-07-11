@@ -106,9 +106,9 @@ def train():
 
             for idx in range(BATCH_SIZE//2):
                 if torch.equal(labelsA[idx], labelsB[idx]):
-                    eq_labels.append(torch.ones(1).type(LongTensor))
+                    eq_labels.append(torch.ones(1).type(FloatTensor))
                 else:
-                    eq_labels.append(torch.zeros(1).type(LongTensor))
+                    eq_labels.append(torch.zeros(1).type(FloatTensor))
 
             eq_labels = torch.stack(eq_labels)
 
