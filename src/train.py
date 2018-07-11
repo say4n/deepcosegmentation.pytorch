@@ -114,10 +114,8 @@ def train():
 
             # pdb.set_trace()
 
-            eq_labels_unsqueezed = eq_labels.unsqueeze(1)
-
-            masksA = masksA * eq_labels_unsqueezed
-            masksB = masksB * eq_labels_unsqueezed
+            masksA = masksA * eq_labels
+            masksB = masksB * eq_labels
 
 
             imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor))
@@ -125,20 +123,21 @@ def train():
 
             pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
 
+            # squeeze channel
+            pmapA_sq = pmapA.squeeze(1)
+            pmapB_sq = pmapB.squeeze(1)
+
+            # # pdb.set_trace()
+
+            # masksA_v = torch.autograd.Variable(masksA.type(FloatTensor))
+            # masksB_v = torch.autograd.Variable(masksB.type(FloatTensor))
+
             # pdb.set_trace()
-
-            masksA_v = torch.autograd.Variable(masksA.type(FloatTensor))
-            masksB_v = torch.autograd.Variable(masksB.type(FloatTensor))
-
-            # pdb.set_trace()
-
-            eq_mul = eq_labels.type(FloatTensor).unsqueeze(2)
-
 
             optimizer.zero_grad()
 
-            lossA = criterion(pmapA * eq_mul, masksA_v) / 512 * 512
-            lossB = criterion(pmapB * eq_mul, masksB_v) / 512 * 512
+            lossA = criterion(pmapA_sq * eq_labels, masksA_v) / 512 * 512
+            lossB = criterion(pmapB_sq * eq_labels, masksB_v) / 512 * 512
             lossClasifier = criterion(similarity, eq_labels.squeeze(1)) / BATCH_SIZE
 
             loss = lossA + lossB + lossClasifier
