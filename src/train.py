@@ -127,8 +127,8 @@ def train():
 
             # pdb.set_trace()
 
-            masksA_v = torch.autograd.Variable(masksA.type(LongTensor))
-            masksB_v = torch.autograd.Variable(masksB.type(LongTensor))
+            masksA_v = torch.autograd.Variable(masksA.type(FloatTensor))
+            masksB_v = torch.autograd.Variable(masksB.type(FloatTensor))
 
             # pdb.set_trace()
 
