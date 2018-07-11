@@ -74,6 +74,8 @@ def train():
 
     for epoch in range(NUM_EPOCHS):
         loss_f, lossA_f, lossB_f, lossC_f, intersection, union, precision = 0, 0, 0, 0, 0, 0, 0
+        correct_predictions, total_predictions = 0, 0
+
         t_start = time.time()
 
         for batch_idx, batch in tqdm(enumerate(dataloader)):
@@ -178,6 +180,11 @@ def train():
 
             precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
 
+            correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_labels.detach().cpu().numpy())
+            total_predictions += BATCH_SIZE//2
+
+            pdb.set_trace()
+
 
         delta = time.time() - t_start
 
@@ -189,6 +196,7 @@ def train():
 
         writer.add_scalar("metrics/precision", precision/(len(dataloader) * BATCH_SIZE), epoch)
         writer.add_scalar("metrics/iou", intersection/union, epoch)
+        writer.add_scalar("metrics/classifierAccuracy", correct_predictions/total_predictions, epoch)
 
 
         is_better = loss_f < prev_loss
