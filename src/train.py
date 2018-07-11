@@ -132,7 +132,7 @@ def train():
 
             # pdb.set_trace()
 
-            eq_mul = eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2)
+            eq_mul = eq_labels.type(FloatTensor).unsqueeze(2)
 
 
             optimizer.zero_grad()
