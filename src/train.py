@@ -62,7 +62,7 @@ OUTPUT_CHANNELS = 2 # BG + FG channel
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
-NUM_EPOCHS = 2000
+NUM_EPOCHS = 500
 
 
 
