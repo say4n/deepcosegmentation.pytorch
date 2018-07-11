@@ -95,7 +95,6 @@ def train():
 
             # pdb.set_trace()
 
-
             imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
             labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
             masksA, masksB = torch.stack(masksA), torch.stack(masksB)
@@ -112,7 +111,7 @@ def train():
 
             eq_labels = torch.stack(eq_labels)
 
-            # pdb.set_trace()
+            pdb.set_trace()
 
             masksA = masksA * eq_labels
             masksB = masksB * eq_labels
@@ -121,18 +120,16 @@ def train():
             imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor))
             imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor))
 
+
             pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
 
-            # squeeze channel
+
+            # squeeze channels
             pmapA_sq = pmapA.squeeze(1)
             pmapB_sq = pmapB.squeeze(1)
 
-            # # pdb.set_trace()
-
-            # masksA_v = torch.autograd.Variable(masksA.type(FloatTensor))
-            # masksB_v = torch.autograd.Variable(masksB.type(FloatTensor))
-
             # pdb.set_trace()
+
 
             optimizer.zero_grad()
 
