@@ -156,6 +156,8 @@ def train():
             intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
             for idx in range(BATCH_SIZE//2):
+                pdb.set_trace()
+
                 pred_maskA = np.uint64(pmapA_sq[idx].detach().cpu().numpy())
                 pred_maskB = np.uint64(pmapB_sq[idx].detach().cpu().numpy())
 
