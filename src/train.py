@@ -156,11 +156,11 @@ def train():
             intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
             for idx in range(BATCH_SIZE//2):
-                pred_maskA = np.uint64(pmapA[idx].cpu().numpy())
-                pred_maskB = np.uint64(pmapB[idx].cpu().numpy())
+                pred_maskA = np.uint64(pmapA[idx].detach().numpy())
+                pred_maskB = np.uint64(pmapB[idx].detach().numpy())
 
-                masksA_cpu = masksA[idx].cpu().numpy()
-                masksB_cpu = masksB[idx].cpu().numpy()
+                masksA_cpu = masksA[idx].numpy()
+                masksB_cpu = masksB[idx].numpy()
 
                 intersection_a += np.sum(pred_maskA & masksA_cpu)
                 intersection_b += np.sum(pred_maskB & masksB_cpu)
