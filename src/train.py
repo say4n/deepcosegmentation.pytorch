@@ -56,7 +56,7 @@ WEIGHT_DECAY = 0.0005
 ## Dataset
 BATCH_SIZE = 2 * 1  # two images at a time for Siamese net - 2x batch_size hence
 INPUT_CHANNELS = 3  # RGB
-OUTPUT_CHANNELS = 2 # BG + FG channel
+OUTPUT_CHANNELS = 1
 
 ## Training
 CUDA = args.gpu
@@ -127,8 +127,6 @@ def train():
 
             # pdb.set_trace()
 
-            optimizer.zero_grad()
-
             masksA_v = torch.autograd.Variable(masksA.type(LongTensor))
             masksB_v = torch.autograd.Variable(masksB.type(LongTensor))
 
@@ -136,9 +134,12 @@ def train():
 
             eq_mul = eq_labels.type(FloatTensor).unsqueeze(2).unsqueeze(2)
 
-            lossA = criterion(pmapA * eq_mul, masksA_v)
-            lossB = criterion(pmapB * eq_mul, masksB_v)
-            lossClasifier = classifier_criterion(similarity, eq_labels.squeeze(1))
+
+            optimizer.zero_grad()
+
+            lossA = criterion(pmapA * eq_mul, masksA_v) / 512 * 512
+            lossB = criterion(pmapB * eq_mul, masksB_v) / 512 * 512
+            lossClasifier = criterion(similarity, eq_labels.squeeze(1)) / BATCH_SIZE
 
             loss = lossA + lossB + lossClasifier
 
@@ -209,11 +210,6 @@ if __name__ == "__main__":
     image_dir = os.path.join(root_dir, args.img_dir)
     mask_dir = os.path.join(root_dir, args.mask_dir)
 
-    # iCoseg_dataset = iCosegDataset(image_dir=image_dir,
-    #                                mask_dir=mask_dir)
-
-    # dataloader = DataLoader(iCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
-
     PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir=image_dir,
                                                    mask_dir=mask_dir)
 
@@ -230,8 +226,7 @@ if __name__ == "__main__":
     if DEBUG:
         print(model)
 
-    criterion = nn.CrossEntropyLoss()
-    classifier_criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=LEARNING_RATE,
                                  betas=BETAS,
@@ -245,7 +240,6 @@ if __name__ == "__main__":
 
         model = model.cuda()
         criterion = criterion.cuda()
-        classifier_criterion = classifier_criterion.cuda()
 
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor

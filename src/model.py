@@ -88,7 +88,7 @@ class SiameseSegNet(nn.Module):
                                      nn.Upsample(scale_factor=2, mode='nearest'),
                                      *decoder_blocks(128, 64),
                                      *decoder_blocks(64, self.output_channels),
-                                     nn.Softmax(dim=1))
+                                     nn.Sigmoid(dim=1))
 
         self.classifier = nn.Sequential(nn.Linear(2 * (1024 * 16 * 16), 512),
                                         nn.ReLU(),
@@ -98,8 +98,8 @@ class SiameseSegNet(nn.Module):
                                         nn.ReLU(),
                                         nn.Linear(64, 16),
                                         nn.ReLU(),
-                                        nn.Linear(16, 2),
-                                        nn.Softmax(dim=1))
+                                        nn.Linear(16, 1),
+                                        nn.Sigmoid(dim=1))
 
 
     def compute_correlation(self, featureA, featureB):
@@ -201,7 +201,7 @@ class SiameseSegNet(nn.Module):
 
 
 if __name__ == "__main__":
-    model = SiameseSegNet(input_channels=3, output_channels=2)
+    model = SiameseSegNet(input_channels=3, output_channels=1)
 
     iA = torch.rand((1, 3, 512, 512))
     iB = torch.rand((1, 3, 512, 512))
