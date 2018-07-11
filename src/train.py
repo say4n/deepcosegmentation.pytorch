@@ -98,7 +98,7 @@ def train():
 
             imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
             labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
-            masksA, masksB = torch.stack(masksA).long(), torch.stack(masksB).long()
+            masksA, masksB = torch.stack(masksA), torch.stack(masksB)
 
             # pdb.set_trace()
 
