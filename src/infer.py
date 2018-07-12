@@ -4,9 +4,9 @@ Test SegNet based Siamese network
 usage: infer.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
                 --img_dir images \
                 --mask_dir ground_truth \
-                --checkpoint_path /home/SharedData/intern_sayan/iCoseg/deepcoseg_model_best.pth \
+                --checkpoint_path /home/SharedData/intern_sayan/PASCAL_coseg/deepcoseg_model_best.pth \
                 --output_dir ./results \
-                --gpu 1
+                --gpu 0
 
 author - Sayan Goswami
 email  - sayan.goswami.106@gmail.com
@@ -68,7 +68,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 def infer():
     model.eval()
 
-    intersection, union, precision = 0, 0, 0, 0, 0, 0, 0
+    intersection, union, precision = 0, 0, 0
     correct_predictions, total_predictions = 0, 0
 
     t_start = time.time()
