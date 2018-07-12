@@ -113,7 +113,7 @@ def train():
 
             eq_labels = torch.stack(eq_labels)
 
-            # pdb.set_trace()
+            pdb.set_trace()
 
             masksA = masksA * eq_labels
             masksB = masksB * eq_labels
