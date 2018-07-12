@@ -133,8 +133,12 @@ def infer():
             res_images.append(imagesA[idx])
             res_images.append(imagesB[idx])
 
-            res_masks.append((pmapA_sq * similarity[idx]).reshape(1, 512, 512))
-            res_masks.append((pmapB_sq * similarity[idx]).reshape(1, 512, 512))
+            # res_masks.append((pmapA_sq * similarity[idx]).reshape(1, 512, 512))
+            # res_masks.append((pmapB_sq * similarity[idx]).reshape(1, 512, 512))
+
+            # this overrides classifier
+            res_masks.append((pmapA_sq * eq_labels[idx]).reshape(1, 512, 512))
+            res_masks.append((pmapB_sq * eq_labels[idx]).reshape(1, 512, 512))
 
             gt_masks.append(masksA[idx].reshape(1, 512, 512))
             gt_masks.append(masksB[idx].reshape(1, 512, 512))
