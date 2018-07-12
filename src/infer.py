@@ -4,7 +4,7 @@ Test SegNet based Siamese network
 usage: infer.py --dataset_root /home/SharedData/intern_sayan/iCoseg/ \
                 --img_dir images \
                 --mask_dir ground_truth \
-                --checkpoint_load_dir /home/SharedData/intern_sayan/iCoseg/ \
+                --checkpoint_path /home/SharedData/intern_sayan/iCoseg/deepcoseg_model_best.pth \
                 --output_dir ./results \
                 --gpu 1
 
@@ -35,7 +35,7 @@ parser = argparse.ArgumentParser(description='Train a SegNet model')
 parser.add_argument('--dataset_root', required=True)
 parser.add_argument('--img_dir', required=True)
 parser.add_argument('--mask_dir', required=True)
-parser.add_argument('--checkpoint_load_dir', required=True)
+parser.add_argument('--checkpoint_path', required=True)
 parser.add_argument('--output_dir', required=True)
 parser.add_argument('--gpu', default=None)
 
@@ -53,11 +53,10 @@ DEBUG = False
 ## Dataset
 BATCH_SIZE = 2 * 1 # two images at a time for Siamese net
 INPUT_CHANNELS = 3 # RGB
-OUTPUT_CHANNELS = 2 # BG + FG channel
+OUTPUT_CHANNELS = 1 # BG + FG channel
 
 ## Inference
 CUDA = args.gpu
-LOAD_CHECKPOINT = args.checkpoint_load_dir
 
 ## Output Dir
 OUTPUT_DIR = args.output_dir
@@ -69,7 +68,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 def infer():
     model.eval()
 
-    intersection, union, precision = 0, 0, 0
+    intersection, union, precision = 0, 0, 0, 0, 0, 0, 0
+    correct_predictions, total_predictions = 0, 0
+
     t_start = time.time()
 
     for batch_idx, batch in tqdm(enumerate(dataloader)):
@@ -93,7 +94,7 @@ def infer():
 
         imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
         labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
-        masksA, masksB = torch.stack(masksA).long(), torch.stack(masksB).long()
+        masksA, masksB = torch.stack(masksA), torch.stack(masksB)
 
         # pdb.set_trace()
 
@@ -101,21 +102,28 @@ def infer():
 
         for idx in range(BATCH_SIZE//2):
             if torch.equal(labelsA[idx], labelsB[idx]):
-                eq_labels.append(torch.ones(1).type(LongTensor))
+                eq_labels.append(torch.ones(1).type(FloatTensor))
             else:
-                eq_labels.append(torch.zeros(1).type(LongTensor))
+                eq_labels.append(torch.zeros(1).type(FloatTensor))
 
         eq_labels = torch.stack(eq_labels)
 
         # pdb.set_trace()
 
-        masksA = masksA * eq_labels.unsqueeze(1)
-        masksB = masksB * eq_labels.unsqueeze(1)
+        masksA = masksA * eq_labels
+        masksB = masksB * eq_labels
 
-        imagesA_v = torch.autograd.Variable(FloatTensor(imagesA))
-        imagesB_v = torch.autograd.Variable(FloatTensor(imagesB))
+
+        imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor))
+        imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor))
+
 
         pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
+
+
+        # squeeze channels
+        pmapA_sq = pmapA.squeeze(1)
+        pmapB_sq = pmapB.squeeze(1)
 
         # pdb.set_trace()
 
@@ -125,8 +133,8 @@ def infer():
             res_images.append(imagesA[idx])
             res_images.append(imagesB[idx])
 
-            res_masks.append(torch.argmax((pmapA * similarity.unsqueeze(2).unsqueeze(2))[idx], dim=0).reshape(1, 512, 512))
-            res_masks.append(torch.argmax((pmapB * similarity.unsqueeze(2).unsqueeze(2))[idx], dim=0).reshape(1, 512, 512))
+            res_masks.append((pmapA_sq * similarity[idx]).reshape(1, 512, 512))
+            res_masks.append((pmapB_sq * similarity[idx]).reshape(1, 512, 512))
 
             gt_masks.append(masksA[idx].reshape(1, 512, 512))
             gt_masks.append(masksB[idx].reshape(1, 512, 512))
@@ -142,11 +150,13 @@ def infer():
         intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
         for idx in range(BATCH_SIZE//2):
-            pred_maskA = torch.argmax(pmapA[idx], dim=0).cpu().numpy()
-            pred_maskB = torch.argmax(pmapB[idx], dim=0).cpu().numpy()
+            # pdb.set_trace()
 
-            masksA_cpu = masksA[idx].cpu().numpy()
-            masksB_cpu = masksB[idx].cpu().numpy()
+            pred_maskA = np.uint64(pmapA_sq[idx].detach().cpu().numpy())
+            pred_maskB = np.uint64(pmapB_sq[idx].detach().cpu().numpy())
+
+            masksA_cpu = np.uint64(masksA[idx].cpu().numpy())
+            masksB_cpu = np.uint64(masksB[idx].cpu().numpy())
 
             intersection_a += np.sum(pred_maskA & masksA_cpu)
             intersection_b += np.sum(pred_maskB & masksB_cpu)
@@ -162,6 +172,9 @@ def infer():
 
         precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
 
+        correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_labels.detach().cpu().numpy())
+        total_predictions += BATCH_SIZE//2
+
         # pdb.set_trace()
 
         torchvision.utils.save_image(images_T, os.path.join(OUTPUT_DIR, f"batch_{batch_idx}_images.png"), nrow=2)
@@ -170,7 +183,10 @@ def infer():
 
     delta = time.time() - t_start
 
-    print(f"\nTime elapsed: [{delta} secs]\nPrecision : [{precision/(len(dataloader) * BATCH_SIZE)}]\nIoU : [{intersection/union}]")
+    print(f"""\nTime elapsed: [{delta} secs]
+          Precision : [{precision/(len(dataloader) * BATCH_SIZE)}]
+          IoU : [{intersection/union}]
+          Classifier Accuracy: [{correct_predictions/total_predictions}]""")
 
 
 if __name__ == "__main__":
@@ -183,11 +199,6 @@ if __name__ == "__main__":
                                    mask_dir=mask_dir)
 
     dataloader = DataLoader(iCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
-
-    # PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir=image_dir,
-    #                                mask_dir=mask_dir)
-
-    # dataloader = DataLoader(PASCALVOCCoseg_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, drop_last=True)
 
     #-------------#
     #    Model    #
@@ -211,9 +222,7 @@ if __name__ == "__main__":
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor
 
-    if LOAD_CHECKPOINT:
-        model.load_state_dict(torch.load(os.path.join(LOAD_CHECKPOINT, "coseg_model_best.pth")))
-
+    model.load_state_dict(torch.load(args.checkpoint_path))
 
     #------------#
     #    Test    #
