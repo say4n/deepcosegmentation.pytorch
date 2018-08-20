@@ -5,7 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
                 --mask_dir GT \
                 --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
-                --checkpoint_name deepcoseg_model_best.pth \
+                --checkpoint_name deepcoseg_model_test.pth \
                 --gpu 0
 
 author - Sayan Goswami
@@ -54,7 +54,7 @@ BETAS = (0.9, 0.999)
 WEIGHT_DECAY = 0.0005
 
 ## Dataset
-BATCH_SIZE = 2 * 1  # two images at a time for Siamese net - 2x batch_size hence
+BATCH_SIZE = 1
 INPUT_CHANNELS = 3  # RGB
 OUTPUT_CHANNELS = 1
 
@@ -78,110 +78,88 @@ def train():
 
         t_start = time.time()
 
-        for batch_idx, batch in tqdm(enumerate(dataloader)):
-            images = batch["image"].type(FloatTensor)
-            labels = batch["label"].type(LongTensor)
-            masks  = batch["mask"].type(FloatTensor)
 
-            # pdb.set_trace()
+        for batch_idxA, batchA in tqdm(enumerate(dataloader)):
+            imageA = batchA["image"].type(FloatTensor)
+            labelA = batchA["label"].type(LongTensor)
+            masksA = batchA["mask"].type(FloatTensor)
 
-            pairwise_images = [(images[2*idx], images[2*idx+1]) for idx in range(BATCH_SIZE//2)]
-            pairwise_labels = [(labels[2*idx], labels[2*idx+1]) for idx in range(BATCH_SIZE//2)]
-            pairwise_masks  = [(masks[2*idx], masks[2*idx+1]) for idx in range(BATCH_SIZE//2)]
+            for batch_idxB, batchB in enumerate(dataloader):
+                imageB = batchB["image"].type(FloatTensor)
+                labelB = batchB["label"].type(LongTensor)
+                masksB = batchB["mask"].type(FloatTensor)
 
-            # pdb.set_trace()
+                eq_label = torch.ones(1).type(FloatTensor) if torch.equal(labelA, labelB) else torch.zeros(1).type(FloatTensor)
+                eq_label_unsq = eq_label.unsqueeze(1)
 
-            imagesA, imagesB = zip(*pairwise_images)
-            labelsA, labelsB = zip(*pairwise_labels)
-            masksA, masksB = zip(*pairwise_masks)
-
-            # pdb.set_trace()
-
-            imagesA, imagesB = torch.stack(imagesA), torch.stack(imagesB)
-            labelsA, labelsB = torch.stack(labelsA), torch.stack(labelsB)
-            masksA, masksB = torch.stack(masksA), torch.stack(masksB)
-
-            # pdb.set_trace()
-
-            eq_labels = []
-
-            for idx in range(BATCH_SIZE//2):
-                if torch.equal(labelsA[idx], labelsB[idx]):
-                    eq_labels.append(torch.ones(1).type(FloatTensor))
-                else:
-                    eq_labels.append(torch.zeros(1).type(FloatTensor))
-
-            eq_labels = torch.stack(eq_labels)
-            eq_labels_unsq = eq_labels.unsqueeze(1)
-
-            # pdb.set_trace()
-
-            masksA = masksA * eq_labels_unsq
-            masksB = masksB * eq_labels_unsq
-
-
-            imagesA_v = torch.autograd.Variable(imagesA.type(FloatTensor))
-            imagesB_v = torch.autograd.Variable(imagesB.type(FloatTensor))
-
-
-            pmapA, pmapB, similarity = model(imagesA_v, imagesB_v)
-
-            # squeeze channels
-            pmapA_sq = pmapA.squeeze(1)
-            pmapB_sq = pmapB.squeeze(1)
-
-            # pdb.set_trace()
-
-
-            optimizer.zero_grad()
-
-            lossA = criterion(pmapA_sq * eq_labels_unsq, masksA) / 512 * 512
-            lossB = criterion(pmapB_sq * eq_labels_unsq, masksB) / 512 * 512
-            lossClasifier = criterion(similarity, eq_labels) / BATCH_SIZE
-
-            loss = lossA + lossB + lossClasifier
-
-            # pdb.set_trace()
-
-            loss.backward()
-
-            optimizer.step()
-
-
-            # Add losses for epoch
-            loss_f += loss.cpu().float()
-            lossA_f += lossA.cpu().float()
-            lossB_f += lossB.cpu().float()
-            lossC_f += lossClasifier.cpu().float()
-
-            # metrics - IoU & precision
-            intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
-
-            for idx in range(BATCH_SIZE//2):
                 # pdb.set_trace()
 
-                pred_maskA = np.uint64(pmapA_sq[idx].detach().cpu().numpy())
-                pred_maskB = np.uint64(pmapB_sq[idx].detach().cpu().numpy())
+                maskA = maskA * eq_label_unsq
+                maskB = maskB * eq_label_unsq
 
-                masksA_cpu = np.uint64(masksA[idx].cpu().numpy())
-                masksB_cpu = np.uint64(masksB[idx].cpu().numpy())
 
-                intersection_a += np.sum(pred_maskA & masksA_cpu)
-                intersection_b += np.sum(pred_maskB & masksB_cpu)
+                imageA_v = torch.autograd.Variable(imageA.type(FloatTensor))
+                imageB_v = torch.autograd.Variable(imageB.type(FloatTensor))
 
-                union_a += np.sum(pred_maskA | masksA_cpu)
-                union_b += np.sum(pred_maskB | masksB_cpu)
 
-                precision_a += np.sum(pred_maskA == masksA_cpu)
-                precision_b += np.sum(pred_maskB == masksB_cpu)
+                pmapA, pmapB, similarity = model(imageA_v, imageB_v)
 
-            intersection += intersection_a + intersection_b
-            union += union_a + union_b
+                # squeeze channels
+                pmapA_sq = pmapA.squeeze(1)
+                pmapB_sq = pmapB.squeeze(1)
 
-            precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
+                # pdb.set_trace()
 
-            correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_labels.detach().cpu().numpy())
-            total_predictions += BATCH_SIZE//2
+
+                optimizer.zero_grad()
+
+                lossA = criterion(pmapA_sq * eq_label_unsq, maskA) / 512 * 512
+                lossB = criterion(pmapB_sq * eq_label_unsq, maskB) / 512 * 512
+                lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
+
+                loss = lossA + lossB + lossClasifier
+
+                # pdb.set_trace()
+
+                loss.backward()
+
+                optimizer.step()
+
+
+                # Add losses for epoch
+                loss_f += loss.cpu().float()
+                lossA_f += lossA.cpu().float()
+                lossB_f += lossB.cpu().float()
+                lossC_f += lossClasifier.cpu().float()
+
+                # metrics - IoU & precision
+                intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
+
+                for idx in range(BATCH_SIZE//2):
+                    # pdb.set_trace()
+
+                    pred_maskA = np.uint64(pmapA_sq[idx].detach().cpu().numpy())
+                    pred_maskB = np.uint64(pmapB_sq[idx].detach().cpu().numpy())
+
+                    masksA_cpu = np.uint64(masksA[idx].cpu().numpy())
+                    masksB_cpu = np.uint64(masksB[idx].cpu().numpy())
+
+                    intersection_a += np.sum(pred_maskA & masksA_cpu)
+                    intersection_b += np.sum(pred_maskB & masksB_cpu)
+
+                    union_a += np.sum(pred_maskA | masksA_cpu)
+                    union_b += np.sum(pred_maskB | masksB_cpu)
+
+                    precision_a += np.sum(pred_maskA == masksA_cpu)
+                    precision_b += np.sum(pred_maskB == masksB_cpu)
+
+                intersection += intersection_a + intersection_b
+                union += union_a + union_b
+
+                precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
+
+                correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_labels.detach().cpu().numpy())
+                total_predictions += BATCH_SIZE//2
 
 
         delta = time.time() - t_start
