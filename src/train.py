@@ -5,7 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
                 --mask_dir GT \
                 --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
-                --checkpoint_name deepcoseg_model_test.pth \
+                --checkpoint_name deepcoseg_model_best.pth \
                 --gpu 0
 
 author - Sayan Goswami
@@ -82,12 +82,12 @@ def train():
         for batch_idxA, batchA in tqdm(enumerate(dataloader)):
             imageA = batchA["image"].type(FloatTensor)
             labelA = batchA["label"].type(LongTensor)
-            masksA = batchA["mask"].type(FloatTensor)
+            maskA = batchA["mask"].type(FloatTensor)
 
             for batch_idxB, batchB in enumerate(dataloader):
                 imageB = batchB["image"].type(FloatTensor)
                 labelB = batchB["label"].type(LongTensor)
-                masksB = batchB["mask"].type(FloatTensor)
+                maskB = batchB["mask"].type(FloatTensor)
 
                 eq_label = torch.ones(1).type(FloatTensor) if torch.equal(labelA, labelB) else torch.zeros(1).type(FloatTensor)
                 eq_label_unsq = eq_label.unsqueeze(1)
