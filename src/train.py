@@ -135,23 +135,20 @@ def train():
                 # metrics - IoU & precision
                 intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
-                for idx in range(BATCH_SIZE//2):
-                    # pdb.set_trace()
+                pred_maskA = np.uint64(pmapA_sq.detach().cpu().numpy())
+                pred_maskB = np.uint64(pmapB_sq.detach().cpu().numpy())
 
-                    pred_maskA = np.uint64(pmapA_sq[idx].detach().cpu().numpy())
-                    pred_maskB = np.uint64(pmapB_sq[idx].detach().cpu().numpy())
+                masksA_cpu = np.uint64(maskA.cpu().numpy())
+                masksB_cpu = np.uint64(maskB.cpu().numpy())
 
-                    masksA_cpu = np.uint64(masksA[idx].cpu().numpy())
-                    masksB_cpu = np.uint64(masksB[idx].cpu().numpy())
+                intersection_a = np.sum(pred_maskA & masksA_cpu)
+                intersection_b = np.sum(pred_maskB & masksB_cpu)
 
-                    intersection_a += np.sum(pred_maskA & masksA_cpu)
-                    intersection_b += np.sum(pred_maskB & masksB_cpu)
+                union_a = np.sum(pred_maskA | masksA_cpu)
+                union_b = np.sum(pred_maskB | masksB_cpu)
 
-                    union_a += np.sum(pred_maskA | masksA_cpu)
-                    union_b += np.sum(pred_maskB | masksB_cpu)
-
-                    precision_a += np.sum(pred_maskA == masksA_cpu)
-                    precision_b += np.sum(pred_maskB == masksB_cpu)
+                precision_a = np.sum(pred_maskA == masksA_cpu)
+                precision_b = np.sum(pred_maskB == masksB_cpu)
 
                 intersection += intersection_a + intersection_b
                 union += union_a + union_b
