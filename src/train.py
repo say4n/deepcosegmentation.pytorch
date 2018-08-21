@@ -155,7 +155,7 @@ def train():
 
                 precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
 
-                correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_labels.detach().cpu().numpy())
+                correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_label.detach().cpu().numpy())
                 total_predictions += BATCH_SIZE//2
 
 
