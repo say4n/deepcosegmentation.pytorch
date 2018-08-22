@@ -96,9 +96,17 @@ def train():
 
                 if torch.equal(labelA, labelB):
                     eq_label = torch.ones(1).type(FloatTensor)
+
+                    if pos:
+                        continue
+
                     pos = True
                 else:
                     eq_label = torch.zeros(1).type(FloatTensor)
+
+                    if neg:
+                        continue
+
                     neg = True
 
                 eq_label_unsq = eq_label.unsqueeze(1)
