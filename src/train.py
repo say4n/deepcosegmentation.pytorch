@@ -109,7 +109,7 @@ def train():
 
                     neg = True
 
-                eq_label_unsq = eq_label.unsqueeze(1)
+                eq_label_unsq = eq_label
 
                 # pdb.set_trace()
 
