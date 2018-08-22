@@ -87,7 +87,7 @@ def train():
             pos, neg = False, False
 
             for batch_idxB, batchB in enumerate(dataloader):
-                if pos and true:
+                if pos and neg:
                     break
 
                 imageB = batchB["image"].type(FloatTensor)
