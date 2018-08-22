@@ -84,12 +84,23 @@ def train():
             labelA = batchA["label"].type(LongTensor)
             maskA = batchA["mask"].type(FloatTensor)
 
+            pos, neg = False, False
+
             for batch_idxB, batchB in enumerate(dataloader):
+                if pos and true:
+                    break
+
                 imageB = batchB["image"].type(FloatTensor)
                 labelB = batchB["label"].type(LongTensor)
                 maskB = batchB["mask"].type(FloatTensor)
 
-                eq_label = torch.ones(1).type(FloatTensor) if torch.equal(labelA, labelB) else torch.zeros(1).type(FloatTensor)
+                if torch.equal(labelA, labelB):
+                    eq_label = torch.ones(1).type(FloatTensor)
+                    pos = True
+                else:
+                    eq_label = torch.zeros(1).type(FloatTensor)
+                    neg = True
+
                 eq_label_unsq = eq_label.unsqueeze(1)
 
                 # pdb.set_trace()
