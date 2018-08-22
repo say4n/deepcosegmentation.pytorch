@@ -75,6 +75,7 @@ def train():
     for epoch in range(NUM_EPOCHS):
         loss_f, lossA_f, lossB_f, lossC_f, intersection, union, precision = 0, 0, 0, 0, 0, 0, 0
         correct_predictions, total_predictions = 0, 0
+        bg_percent = 0
 
         t_start = time.time()
 
@@ -180,10 +181,12 @@ def train():
                 intersection += (intersection_a + intersection_b)/2
                 union += (union_a + union_b)/2
 
-                precision += (precision_a / ( 2 * 512 * 512)) + (precision_b / (2 * 512 * 512))
+                precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
 
                 correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_label.detach().cpu().numpy())
                 total_predictions += 1
+
+                bg_percent = np.sum(pred_maskA) / (512 * 512) + np.sum(pred_maskB) / (512 * 512)
 
 
         delta = time.time() - t_start
@@ -194,8 +197,9 @@ def train():
         writer.add_scalar("loss/lossClassifier", lossC_f, epoch)
         writer.add_scalar("loss/loss", loss_f, epoch)
 
-        writer.add_scalar("metrics/precision", precision/(len(dataloader) * BATCH_SIZE), epoch)
+        writer.add_scalar("metrics/precision", precision/(len(dataloader) * 2), epoch)
         writer.add_scalar("metrics/iou", intersection/union, epoch)
+        writer.add_scalar("metrics/bgPixelPercent", bg_percent/(len(dataloader) * 2), epoch)
         writer.add_scalar("metrics/classifierAccuracy", correct_predictions/total_predictions, epoch)
 
 
