@@ -186,7 +186,7 @@ def train():
                 correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_label.detach().cpu().numpy())
                 total_predictions += 1
 
-                bg_percent = np.sum(pred_maskA) / (512 * 512) + np.sum(pred_maskB) / (512 * 512)
+                bg_percent += np.sum(pred_maskA) / (512 * 512) + np.sum(pred_maskB) / (512 * 512)
 
 
         delta = time.time() - t_start
