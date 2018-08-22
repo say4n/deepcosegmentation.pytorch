@@ -160,19 +160,27 @@ def train():
                 masksA_cpu = np.uint64(maskA.cpu().numpy())
                 masksB_cpu = np.uint64(maskB.cpu().numpy())
 
+                # pdb.set_trace()
+
                 intersection_a = np.sum(pred_maskA & masksA_cpu)
                 intersection_b = np.sum(pred_maskB & masksB_cpu)
+
+                # pdb.set_trace()
 
                 union_a = np.sum(pred_maskA | masksA_cpu)
                 union_b = np.sum(pred_maskB | masksB_cpu)
 
+                # pdb.set_trace()
+
                 precision_a = np.sum(pred_maskA == masksA_cpu)
                 precision_b = np.sum(pred_maskB == masksB_cpu)
+
+                # pdb.set_trace()
 
                 intersection += (intersection_a + intersection_b)/2
                 union += (union_a + union_b)/2
 
-                precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
+                precision += (precision_a / ( 2 * 512 * 512)) + (precision_b / (2 * 512 * 512))
 
                 correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_label.detach().cpu().numpy())
                 total_predictions += 1
