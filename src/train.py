@@ -132,11 +132,11 @@ def train():
 
                 optimizer.zero_grad()
 
-                lossA = criterion(pmapA_sq * eq_label_unsq, maskA) / 512 * 512
-                lossB = criterion(pmapB_sq * eq_label_unsq, maskB) / 512 * 512
-                lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
+                lossA = criterion(pmapA_sq, maskA) / 512 * 512
+                lossB = criterion(pmapB_sq, maskB) / 512 * 512
+                # lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
 
-                loss = lossA + lossB + lossClasifier
+                loss = lossA + lossB
 
                 # pdb.set_trace()
 
