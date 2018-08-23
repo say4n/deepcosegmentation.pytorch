@@ -56,7 +56,7 @@ WEIGHT_DECAY = 0.0005
 ## Dataset
 BATCH_SIZE = 1
 INPUT_CHANNELS = 3  # RGB
-OUTPUT_CHANNELS = 1
+OUTPUT_CHANNELS = 2 # FG + BG
 
 ## Training
 CUDA = args.gpu
@@ -83,7 +83,7 @@ def train():
         for batch_idxA, batchA in tqdm(enumerate(dataloader)):
             imageA = batchA["image"].type(FloatTensor)
             labelA = batchA["label"].type(LongTensor)
-            maskA = batchA["mask"].type(FloatTensor)
+            maskA = batchA["mask"].type(LongTensor)
 
             pos, neg = False, False
 
@@ -93,26 +93,27 @@ def train():
 
                 imageB = batchB["image"].type(FloatTensor)
                 labelB = batchB["label"].type(LongTensor)
-                maskB = batchB["mask"].type(FloatTensor)
+                maskB = batchB["mask"].type(LongTensor)
 
                 if torch.equal(labelA, labelB):
-                    eq_label = torch.ones(1).type(FloatTensor)
+                    eq_label = torch.ones(1).type(LongTensor)
 
                     if pos:
                         continue
 
                     pos = True
                 else:
-                    eq_label = torch.zeros(1).type(FloatTensor)
+                    eq_label = torch.zeros(1).type(LongTensor)
 
                     if neg:
                         continue
 
                     neg = True
 
-                eq_label_unsq = eq_label
-
                 # pdb.set_trace()
+
+                eq_label_unsq = eq_label.unsqueeze(0)
+
 
                 maskA = maskA * eq_label_unsq
                 maskB = maskB * eq_label_unsq
@@ -124,20 +125,16 @@ def train():
 
                 pmapA, pmapB, similarity = model(imageA_v, imageB_v)
 
-                # squeeze channels
-                pmapA_sq = pmapA.squeeze(1)
-                pmapB_sq = pmapB.squeeze(1)
 
                 # pdb.set_trace()
 
-
                 optimizer.zero_grad()
 
-                lossA = criterion(pmapA_sq, maskA) / 512 * 512
-                lossB = criterion(pmapB_sq, maskB) / 512 * 512
-                # lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
+                lossA = criterion(pmapA, maskA) / 512 * 512
+                lossB = criterion(pmapB, maskB) / 512 * 512
+                lossClasifier = classifiercriterion(similarity, eq_label_unsq.type(FloatTensor)) / BATCH_SIZE
 
-                loss = lossA + lossB
+                loss = lossA + lossB + lossClasifier
 
                 # pdb.set_trace()
 
@@ -155,8 +152,8 @@ def train():
                 # metrics - IoU & precision
                 intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
-                pred_maskA = np.uint64(pmapA_sq.detach().cpu().numpy())
-                pred_maskB = np.uint64(pmapB_sq.detach().cpu().numpy())
+                pred_maskA = np.uint64(np.argmax(pmapA.detach().cpu().numpy()), axis=1)
+                pred_maskB = np.uint64(np.argmax(pmapB.detach().cpu().numpy()), axis=1)
 
                 masksA_cpu = np.uint64(maskA.cpu().numpy())
                 masksB_cpu = np.uint64(maskB.cpu().numpy())
@@ -197,9 +194,9 @@ def train():
         writer.add_scalar("loss/lossClassifier", lossC_f, epoch)
         writer.add_scalar("loss/loss", loss_f, epoch)
 
-        writer.add_scalar("metrics/precision", precision/(len(dataloader) * 2), epoch)
+        writer.add_scalar("metrics/precision", precision/(len(dataloader) * 4), epoch)
         writer.add_scalar("metrics/iou", intersection/union, epoch)
-        writer.add_scalar("metrics/bgPixelPercent", bg_percent/(len(dataloader) * 2), epoch)
+        writer.add_scalar("metrics/bgPixelPercent", bg_percent/(len(dataloader) * 4), epoch)
         writer.add_scalar("metrics/classifierAccuracy", correct_predictions/total_predictions, epoch)
 
 
@@ -236,7 +233,8 @@ if __name__ == "__main__":
     if DEBUG:
         print(model)
 
-    criterion = nn.BCELoss()
+    criterion = nn.CrossEntropyLoss()
+    classifiercriterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=LEARNING_RATE,
                                  betas=BETAS,
