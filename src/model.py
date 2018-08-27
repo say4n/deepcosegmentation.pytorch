@@ -87,8 +87,7 @@ class SiameseSegNet(nn.Module):
                                      *decoder_blocks(128, 128),
                                      nn.Upsample(scale_factor=2, mode='nearest'),
                                      *decoder_blocks(128, 64),
-                                     *decoder_blocks(64, self.output_channels),
-                                     nn.Sigmoid())
+                                     *decoder_blocks(64, self.output_channels))
 
         self.classifier = nn.Sequential(nn.Linear(2 * (1024 * 16 * 16), 512),
                                         nn.ReLU(),
