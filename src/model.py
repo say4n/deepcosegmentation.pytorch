@@ -98,7 +98,7 @@ class SiameseSegNet(nn.Module):
                                         nn.ReLU(),
                                         nn.Linear(64, 16),
                                         nn.ReLU(),
-                                        nn.Linear(16, 1),
+                                        nn.Linear(16, self.output_channels),
                                         nn.Sigmoid())
 
 

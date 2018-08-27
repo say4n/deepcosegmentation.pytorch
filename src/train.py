@@ -62,7 +62,7 @@ OUTPUT_CHANNELS = 2 # FG + BG
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
-NUM_EPOCHS = 100
+NUM_EPOCHS = 1000
 
 
 
@@ -112,7 +112,7 @@ def train():
 
                 # pdb.set_trace()
 
-                eq_label_unsq = eq_label.unsqueeze(0)
+                eq_label_unsq = eq_label.unsqueeze(1)
 
 
                 maskA = maskA * eq_label_unsq
@@ -124,15 +124,16 @@ def train():
 
 
                 pmapA, pmapB, similarity = model(imageA_v, imageB_v)
+                similarity_unsq = similarity.unsqueeze(2).unsqueeze(2)
 
 
                 # pdb.set_trace()
 
                 optimizer.zero_grad()
 
-                lossA = criterion(pmapA, maskA) / 512 * 512
-                lossB = criterion(pmapB, maskB) / 512 * 512
-                lossClasifier = classifiercriterion(similarity, eq_label_unsq.type(FloatTensor)) / BATCH_SIZE
+                lossA = criterion(pmapA * similarity_unsq, maskA) / 512 * 512
+                lossB = criterion(pmapB * similarity_unsq, maskB) / 512 * 512
+                lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
 
                 loss = lossA + lossB + lossClasifier
 
