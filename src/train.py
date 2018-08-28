@@ -148,7 +148,7 @@ def train():
                 loss_f += loss.cpu().float()
                 lossA_f += lossA.cpu().float()
                 lossB_f += lossB.cpu().float()
-                lossC_f += 0
+                lossC_f += lossClasifier.cpu().float()
 
                 # metrics - IoU & precision
                 intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
