@@ -104,8 +104,8 @@ class PASCALVOCCosegDataset(DatasetABC):
         return img
 
     def mask_loader(self, path):
-        img = Image.open(path).convert('1').resize(self.img_size)
-        img = np.array(img).astype(np.uint8)
+        img = Image.open(path).convert('L').resize(self.img_size)
+        img = np.array(img).astype(np.uint8)/255.0
 
         return img
 
@@ -167,21 +167,22 @@ class MSRCDataset(DatasetABC):
 
 
 if __name__ == "__main__":
-    iCoseg_dataset = iCosegDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/iCoseg/images",
-                                   mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/iCoseg/ground_truth")
-    print(f"iCoseg_dataset: # samples = {len(iCoseg_dataset)}")
+    # iCoseg_dataset = iCosegDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/iCoseg/images",
+    #                                mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/iCoseg/ground_truth")
+    # print(f"iCoseg_dataset: # samples = {len(iCoseg_dataset)}")
 
 
     PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/PASCAL_coseg/images",
                                                    mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/PASCAL_coseg/GT")
     print(f"PASCALVOCCoseg_dataset: # samples = {len(PASCALVOCCoseg_dataset)}")
+    print(PASCALVOCCoseg_dataset[0])
 
 
-    Internet_dataset = InternetDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/internet_processed/images",
-                                       mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/internet_processed/GT")
-    print(f"Internet_dataset: # samples = {len(Internet_dataset)}")
+    # Internet_dataset = InternetDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/internet_processed/images",
+    #                                    mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/internet_processed/GT")
+    # print(f"Internet_dataset: # samples = {len(Internet_dataset)}")
 
 
-    MSRC_dataset = MSRCDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/MSRC_processed/images",
-                               mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/MSRC_processed/GT")
-    print(f"MSRC_dataset: # samples = {len(MSRC_dataset)}")
+    # MSRC_dataset = MSRCDataset(image_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/MSRC_processed/images",
+    #                            mask_dir="/Users/Sayan/Desktop/Research/IIT B/Vision/datasets/internet_dataset_ObjectDiscovery-data/MSRC_processed/GT")
+    # print(f"MSRC_dataset: # samples = {len(MSRC_dataset)}")
