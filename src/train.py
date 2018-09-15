@@ -80,7 +80,7 @@ def train():
         t_start = time.time()
 
 
-        for batch_idxA, batchA in tqdm(enumerate(dataloader)):
+        for batch_idxA, batchA in tqdm(enumerate(dataloader), total=len(dataloader)):
             imageA = batchA["image"].type(FloatTensor)
             labelA = batchA["label"].type(LongTensor)
             maskA = batchA["mask"].type(LongTensor)
