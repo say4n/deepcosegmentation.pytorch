@@ -5,7 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
                 --mask_dir GT \
                 --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
-                --checkpoint_name deepcoseg_model_best.pth \
+                --checkpoint_name deepcoseg_model_21Sep_best.pth \
                 --gpu 0
 
 author - Sayan Goswami
@@ -54,7 +54,7 @@ BETAS = (0.9, 0.999)
 WEIGHT_DECAY = 0.0005
 
 ## Dataset
-BATCH_SIZE = 1
+BATCH_SIZE = 1 * 2
 INPUT_CHANNELS = 3  # RGB
 OUTPUT_CHANNELS = 2 # FG + BG
 
@@ -80,111 +80,97 @@ def train():
         t_start = time.time()
 
 
-        for batch_idxA, batchA in tqdm(enumerate(dataloader), total=len(dataloader)):
-            imageA = batchA["image"].type(FloatTensor)
-            labelA = batchA["label"].type(LongTensor)
-            maskA = batchA["mask"].type(LongTensor)
+        for batch_idx, batch in tqdm(enumerate(dataloader), total=len(dataloader)):
+            imageA = batch["image"][0].type(FloatTensor).unsqueeze(0)
+            labelA = batch["label"][0].type(LongTensor).unsqueeze(0)
+            maskA = batch["mask"][0].type(LongTensor).unsqueeze(0)
 
-            pos, neg = False, False
-
-            for batch_idxB, batchB in enumerate(dataloader):
-                if pos and neg:
-                    break
-
-                imageB = batchB["image"].type(FloatTensor)
-                labelB = batchB["label"].type(LongTensor)
-                maskB = batchB["mask"].type(LongTensor)
-
-                if torch.equal(labelA, labelB):
-                    eq_label = torch.ones(1).type(LongTensor)
-
-                    if pos:
-                        continue
-
-                    pos = True
-                else:
-                    eq_label = torch.zeros(1).type(LongTensor)
-
-                    if neg:
-                        continue
-
-                    neg = True
-
-                # pdb.set_trace()
-
-                eq_label_unsq = eq_label.unsqueeze(1)
+            imageB = batch["image"][1].type(FloatTensor).unsqueeze(0)
+            labelB = batch["label"][1].type(LongTensor).unsqueeze(0)
+            maskB = batch["mask"][1].type(LongTensor).unsqueeze(0)
 
 
-                maskA = maskA * eq_label_unsq
-                maskB = maskB * eq_label_unsq
+
+            if torch.equal(labelA, labelB):
+                eq_label = torch.ones(1).type(LongTensor)
+            else:
+                eq_label = torch.zeros(1).type(LongTensor)
+
+            # pdb.set_trace()
+
+            eq_label_unsq = eq_label.unsqueeze(1)
 
 
-                imageA_v = torch.autograd.Variable(imageA.type(FloatTensor))
-                imageB_v = torch.autograd.Variable(imageB.type(FloatTensor))
+            maskA = maskA * eq_label_unsq
+            maskB = maskB * eq_label_unsq
 
 
-                pmapA, pmapB, similarity = model(imageA_v, imageB_v)
-                similarity_unsq = similarity.unsqueeze(2).unsqueeze(2)
+            imageA_v = torch.autograd.Variable(imageA.type(FloatTensor))
+            imageB_v = torch.autograd.Variable(imageB.type(FloatTensor))
 
 
-                # pdb.set_trace()
-
-                optimizer.zero_grad()
-
-                lossA = criterion(pmapA * similarity_unsq, maskA) / 512 * 512
-                lossB = criterion(pmapB * similarity_unsq, maskB) / 512 * 512
-                lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
-
-                loss = lossA + lossB + lossClasifier
-
-                # pdb.set_trace()
-
-                loss.backward()
-
-                optimizer.step()
+            pmapA, pmapB, similarity = model(imageA_v, imageB_v)
+            similarity_unsq = similarity.unsqueeze(2).unsqueeze(2)
 
 
-                # Add losses for epoch
-                loss_f += loss.cpu().float()
-                lossA_f += lossA.cpu().float()
-                lossB_f += lossB.cpu().float()
-                lossC_f += lossClasifier.cpu().float()
+            # pdb.set_trace()
 
-                # metrics - IoU & precision
-                intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
+            optimizer.zero_grad()
 
-                pred_maskA = np.uint64(np.argmax(pmapA.detach().cpu().numpy()), axis=1)
-                pred_maskB = np.uint64(np.argmax(pmapB.detach().cpu().numpy()), axis=1)
+            lossA = criterion(pmapA * similarity_unsq, maskA) / 512 * 512
+            lossB = criterion(pmapB * similarity_unsq, maskB) / 512 * 512
+            lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
 
-                masksA_cpu = np.uint64(maskA.cpu().numpy())
-                masksB_cpu = np.uint64(maskB.cpu().numpy())
+            loss = lossA + lossB + lossClasifier
 
-                # pdb.set_trace()
+            # pdb.set_trace()
 
-                intersection_a = np.sum(pred_maskA & masksA_cpu)
-                intersection_b = np.sum(pred_maskB & masksB_cpu)
+            loss.backward()
 
-                # pdb.set_trace()
+            optimizer.step()
 
-                union_a = np.sum(pred_maskA | masksA_cpu)
-                union_b = np.sum(pred_maskB | masksB_cpu)
 
-                # pdb.set_trace()
+            # Add losses for epoch
+            loss_f += loss.cpu().float()
+            lossA_f += lossA.cpu().float()
+            lossB_f += lossB.cpu().float()
+            lossC_f += lossClasifier.cpu().float()
 
-                precision_a = np.sum(pred_maskA == masksA_cpu)
-                precision_b = np.sum(pred_maskB == masksB_cpu)
+            # metrics - IoU & precision
+            intersection_a, intersection_b, union_a, union_b, precision_a, precision_b = 0, 0, 0, 0, 0, 0
 
-                # pdb.set_trace()
+            pred_maskA = np.uint64(np.argmax(pmapA.detach().cpu().numpy()), axis=1)
+            pred_maskB = np.uint64(np.argmax(pmapB.detach().cpu().numpy()), axis=1)
 
-                intersection += (intersection_a + intersection_b)/2
-                union += (union_a + union_b)/2
+            masksA_cpu = np.uint64(maskA.cpu().numpy())
+            masksB_cpu = np.uint64(maskB.cpu().numpy())
 
-                precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))
+            # pdb.set_trace()
 
-                correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_label.detach().cpu().numpy())
-                total_predictions += 1
+            intersection_a = np.sum(pred_maskA & masksA_cpu)
+            intersection_b = np.sum(pred_maskB & masksB_cpu)
 
-                bg_percent += (512 * 512 - np.sum(pred_maskA)) / (512 * 512) + (512 * 512 - np.sum(pred_maskB)) / (512 * 512)
+            # pdb.set_trace()
+
+            union_a = np.sum(pred_maskA | masksA_cpu)
+            union_b = np.sum(pred_maskB | masksB_cpu)
+
+            # pdb.set_trace()
+
+            precision_a = np.sum(pred_maskA == masksA_cpu)
+            precision_b = np.sum(pred_maskB == masksB_cpu)
+
+            # pdb.set_trace()
+
+            intersection += (intersection_a + intersection_b)/2
+            union += (union_a + union_b)/2
+
+            precision += (precision_a / (512 * 512)) + (precision_b / (512 * 512))/2
+
+            correct_predictions += np.sum((similarity.detach().cpu().numpy() >= 0.5) == eq_label.detach().cpu().numpy())
+            total_predictions += 1
+
+            bg_percent += (512 * 512 - np.sum(pred_maskA)) / (512 * 512) + (512 * 512 - np.sum(pred_maskB)) / (512 * 512)
 
 
         delta = time.time() - t_start
@@ -195,9 +181,9 @@ def train():
         writer.add_scalar("loss/lossClassifier", lossC_f, epoch)
         writer.add_scalar("loss/loss", loss_f, epoch)
 
-        writer.add_scalar("metrics/precision", precision/(len(dataloader) * 4), epoch)
+        writer.add_scalar("metrics/precision", precision/(len(dataloader) * 2), epoch)
         writer.add_scalar("metrics/iou", intersection/union, epoch)
-        writer.add_scalar("metrics/bgPixelPercent", bg_percent/(len(dataloader) * 4), epoch)
+        writer.add_scalar("metrics/bgPixelPercent", bg_percent/(len(dataloader) * 2), epoch)
         writer.add_scalar("metrics/classifierAccuracy", correct_predictions/total_predictions, epoch)
 
 
@@ -221,7 +207,11 @@ if __name__ == "__main__":
     PASCALVOCCoseg_dataset = PASCALVOCCosegDataset(image_dir=image_dir,
                                                    mask_dir=mask_dir)
 
-    dataloader = DataLoader(PASCALVOCCoseg_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, drop_last=True)
+    dataloader = DataLoader(PASCALVOCCoseg_dataset,
+                            batch_size=BATCH_SIZE,
+                            shuffle=True,
+                            num_workers=4,
+                            drop_last=True)
 
     #-------------#
     #    Model    #

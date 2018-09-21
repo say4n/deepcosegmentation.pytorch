@@ -66,7 +66,7 @@ class SiameseSegNet(nn.Module):
             return layers
 
 
-        self.encoder = models.vgg16_bn(pretrained=True).features
+        self.encoder = models.vgg16_bn(pretrained=False).features
         self.encoder_l2 = nn.Sequential(*encoder_blocks(512, 1024),
                                         *encoder_blocks(1024, 1024))
 
