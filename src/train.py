@@ -98,11 +98,11 @@ def train():
 
             # pdb.set_trace()
 
-            eq_label_unsq = eq_label.unsqueeze(1)
+            eq_label = torch.stack([eq_label])
 
 
-            maskA = maskA * eq_label_unsq
-            maskB = maskB * eq_label_unsq
+            maskA = maskA * eq_label
+            maskB = maskB * eq_label
 
 
             imageA_v = torch.autograd.Variable(imageA.type(FloatTensor))
@@ -118,7 +118,7 @@ def train():
 
             lossA = criterion(pmapA * similarity, maskA) / 512 * 512
             lossB = criterion(pmapB * similarity, maskB) / 512 * 512
-            lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
+            lossClasifier = classifiercriterion(similarity, eq_label.type(FloatTensor)) / BATCH_SIZE
 
             loss = lossA + lossB + lossClasifier
 
