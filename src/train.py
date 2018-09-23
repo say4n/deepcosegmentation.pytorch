@@ -5,7 +5,7 @@ usage: train.py --dataset_root /home/SharedData/intern_sayan/PASCAL_coseg/ \
                 --img_dir images \
                 --mask_dir GT \
                 --checkpoint_save_dir /home/SharedData/intern_sayan/PASCAL_coseg/ \
-                --checkpoint_name deepcoseg_model_21Sep_best.pth \
+                --checkpoint_name deepcoseg_model_24Sep_best.pth \
                 --gpu 0
 
 author - Sayan Goswami
@@ -110,15 +110,14 @@ def train():
 
 
             pmapA, pmapB, similarity = model(imageA_v, imageB_v)
-            similarity_unsq = similarity.unsqueeze(2).unsqueeze(2)
 
 
             # pdb.set_trace()
 
             optimizer.zero_grad()
 
-            lossA = criterion(pmapA * similarity_unsq, maskA) / 512 * 512
-            lossB = criterion(pmapB * similarity_unsq, maskB) / 512 * 512
+            lossA = criterion(pmapA * similarity, maskA) / 512 * 512
+            lossB = criterion(pmapB * similarity, maskB) / 512 * 512
             lossClasifier = criterion(similarity, eq_label) / BATCH_SIZE
 
             loss = lossA + lossB + lossClasifier

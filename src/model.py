@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
-DEBUG = True
+DEBUG = False
 
 
 vgg16_dims = [
@@ -98,7 +98,7 @@ class SiameseSegNet(nn.Module):
                                         nn.ReLU(),
                                         nn.Linear(64, 16),
                                         nn.ReLU(),
-                                        nn.Linear(16, self.output_channels),
+                                        nn.Linear(16, 1),
                                         nn.Sigmoid())
 
 
