@@ -1,0 +1,8 @@
+# dependencies
+
+numpy
+PIL
+torch
+torchvision
+tqdm
+tensorboardX

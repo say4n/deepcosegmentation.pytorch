@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
-DEBUG = False
+DEBUG = True
 
 
 vgg16_dims = [
@@ -69,9 +69,10 @@ class SiameseSegNet(nn.Module):
         self.encoder = models.vgg16_bn(pretrained=True).features
         self.encoder_l2 = nn.Sequential(*encoder_blocks(512, 1024),
                                         *encoder_blocks(1024, 1024))
+        self.conv1x1 = nn.Conv2d(1024, 512, kernel_size=3, padding=1)
 
         self.decoder = nn.Sequential(nn.Upsample(scale_factor=2, mode='nearest'),
-                                     *decoder_blocks(1024 + 1024, 512),
+                                     *decoder_blocks(512 + 1024, 512),
                                      *decoder_blocks(512, 512),
                                      *decoder_blocks(512, 512),
                                      nn.Upsample(scale_factor=2, mode='nearest'),
@@ -182,8 +183,8 @@ class SiameseSegNet(nn.Module):
             print(f"correlationAB.size(): {correlationAB.size()}")
             print(f"correlationBA.size(): {correlationBA.size()}")
 
-        correspondence_mapA = torch.cat([featureA, correlationAB], dim=1)
-        correspondence_mapB = torch.cat([featureB, correlationBA], dim=1)
+        correspondence_mapA = torch.cat([self.conv1x1(featureA), correlationAB], dim=1)
+        correspondence_mapB = torch.cat([self.conv1x1(featureB), correlationBA], dim=1)
 
         if DEBUG:
             print(f"correspondence_mapA.size(): {correspondence_mapA.size()}")
@@ -200,12 +201,12 @@ class SiameseSegNet(nn.Module):
 
 
 if __name__ == "__main__":
-    model = SiameseSegNet(input_channels=3, output_channels=1)
+    model = SiameseSegNet(input_channels=3, output_channels=2)
 
     iA = torch.rand((1, 3, 512, 512))
     iB = torch.rand((1, 3, 512, 512))
 
-    pmapA, pmapB = model(iA, iB)
+    pmapA, pmapB, similarity = model(iA, iB)
 
     if DEBUG:
         print(f"pmapA.size(), pmapB.size() : {pmapA.size()}, {pmapB.size()}")
