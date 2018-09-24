@@ -49,7 +49,7 @@ args = parser.parse_args()
 DEBUG = False
 
 ## Optimiser
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-5
 BETAS = (0.9, 0.999)
 WEIGHT_DECAY = 0.0005
 
@@ -62,7 +62,7 @@ OUTPUT_CHANNELS = 2 # FG + BG
 CUDA = args.gpu
 CHECKPOINT = args.checkpoint_save_dir
 LOAD_CHECKPOINT = args.checkpoint_load_dir
-NUM_EPOCHS = 1000
+NUM_EPOCHS = 2000
 
 
 
@@ -105,16 +105,16 @@ def train():
             maskB = maskB * eq_label
 
 
-            imageA_v = torch.autograd.Variable(imageA.type(FloatTensor))
-            imageB_v = torch.autograd.Variable(imageB.type(FloatTensor))
+            imageA_v = torch.tensor(imageA.type(FloatTensor), requires_grad=False)
+            imageB_v = torch.tensor(imageB.type(FloatTensor), requires_grad=False)
 
+
+            optimizer.zero_grad()
 
             pmapA, pmapB, similarity = model(imageA_v, imageB_v)
 
 
             # pdb.set_trace()
-
-            optimizer.zero_grad()
 
             lossA = criterion(pmapA * similarity, maskA) / 512 * 512
             lossB = criterion(pmapB * similarity, maskB) / 512 * 512
@@ -225,10 +225,7 @@ if __name__ == "__main__":
 
     criterion = nn.CrossEntropyLoss()
     classifiercriterion = nn.BCELoss()
-    optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=LEARNING_RATE,
-                                 betas=BETAS,
-                                 weight_decay=WEIGHT_DECAY)
+
 
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
@@ -241,6 +238,11 @@ if __name__ == "__main__":
 
         FloatTensor = torch.cuda.FloatTensor
         LongTensor = torch.cuda.LongTensor
+
+    optimizer = torch.optim.Adam(model.parameters(),
+                                 lr=LEARNING_RATE,
+                                 betas=BETAS,
+                                 weight_decay=WEIGHT_DECAY)
 
     if LOAD_CHECKPOINT:
         model.load_state_dict(torch.load(os.path.join(LOAD_CHECKPOINT, args.checkpoint_name)))
